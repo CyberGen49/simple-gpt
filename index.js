@@ -29,7 +29,10 @@ const localStorageGet = key => {
 };
 const localStorageSet = (key, value) => {
     window.localStorage.setItem(key, value);
-    console.log(`Updated local storage:\nKey: ${key}\nValue: ${value}`);
+};
+
+const markdownToHtml = markdown => {
+    return DOMPurify.sanitize(marked.parse(markdown));
 };
 
 if (!localStorageGet('model'))
@@ -97,12 +100,14 @@ const getInteractionElement = (interaction) => {
         <div class="content col gap-10">
             <div class="user">
                 <div class="header">You</div>
-                ${marked.parse(interaction.prompt)}
+                <div class="prompt">
+                    ${markdownToHtml(interaction.prompt)}
+                </div>
             </div>
             <div class="assistant">
                 <div class="header">${models[interaction.model].name}</div>
                 <div class="response">
-                    ${interaction.response ? marked.parse(interaction.response) : `
+                    ${interaction.response ? markdownToHtml(interaction.response) : `
                         <progress class="info" style="margin-top: -3px; margin-bottom: 3px"></progress>
                     `}
                 </div>
@@ -238,7 +243,7 @@ btnGo.addEventListener('click', async() => {
     elInteractions.insertAdjacentElement('afterbegin', elInteraction);
     const data = await getModelResponse(prompt);
     const elResponse = $('.response', elInteraction);
-    elResponse.innerHTML = marked.parse(data.response || data.error);
+    elResponse.innerHTML = markdownToHtml(data.response || data.error);
     Prism.highlightAll();
     if (!data.error) {
         const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');

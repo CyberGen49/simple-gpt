@@ -7,6 +7,7 @@
     <meta property="og:site_name" content="SimpleGPT">
     <meta property="og:title" content="SimpleGPT">
     <meta property="og:description" content="Use your own OpenAI API key to interact with GPT-3.5 Turbo and GPT-4 without context.">
+    <meta name="theme-color" content="#1c2022">
     <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/base.css">
     <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/themes.css">
     <link defer rel="stylesheet" href="/index.css">
@@ -16,6 +17,7 @@
     <script defer src="https://src.simplecyber.org/lib/tabbable.min.js"></script>
     <script defer src="https://src.simplecyber.org/lib/focus-trap.min.js"></script>
     <script defer src="https://src.simplecyber.org/lib/dayjs.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/purify.min.js"></script>
     <script defer src="https://src.simplecyber.org/utils.js"></script>
     <script defer src="https://src.simplecyber.org/v2/base.js"></script>
     <script defer src="/index.js"></script>
@@ -30,7 +32,10 @@
     <div id="main" class="row justify-center">
         <div class="col gap-10" style="width: 1000px">
             <div class="top col gap-15" style="padding: 20px 10px 0px 10px">
-                <div class="heading">SimpleGPT</div>
+                <div class="row align-end">
+                    <div class="heading flex-grow">SimpleGPT</div>
+                    <a href="https://github.com/CyberGen49/simple-gpt">GitHub</a>
+                </div>
                 <div class="draft col gap-10">
                     <textarea id="input" rows="3" data-make-expandable="true"></textarea>
                     <div class="row gap-10 flex-wrap align-end">
