@@ -76,7 +76,6 @@ const sampleQuestions = [
     "Write a song about a dog that turns to crime to feed it's bone addiction",
     "Output the first page of Alice in Wonderland",
     "Teach me how to use Photoshop",
-    "Now teach me how to create a motion blur",
     "Come up with a few name ideas for a cat using wordplay",
     "Create a Chrome extension to print a page to PDF",
     "Suggest 10 birthday gifts for a 40 year old man",
@@ -131,7 +130,7 @@ btnSettings.addEventListener('click', () => {
     el.innerHTML = /*html*/`
         <div style="width: 500px; max-width: 100%">
             <label>OpenAI API Key</label>
-            <input type="text" class="textbox" id="apiKey" value="${localStorageGet('apiKey') || ''}">
+            <input type="password" class="textbox" id="apiKey" value="${localStorageGet('apiKey') || ''}">
             <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>!</small>
             <small class="pad-top">See pricing per model <a href="https://openai.com/pricing">here</a>. This site uses the base context models, so 8k context for GPT-4 and 4k context for GPT-3.5 Turbo.</small>
         </div>
