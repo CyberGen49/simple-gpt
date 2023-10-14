@@ -1,4 +1,29 @@
 
+const input = $('#input');
+const btnModel = $('#model');
+const btnSettings = $('#settings');
+const btnGo = $('#go');
+const elInteractions = $('#interactions');
+
+const models = {
+    'gpt-3.5-turbo': {
+        name: 'GPT-3.5 Turbo',
+        desc: 'Cheap and fast, but less accurate',
+        price: {
+            input: 0.0015 / 1000,
+            output: 0.002 / 1000
+        }
+    },
+    'gpt-4': {
+        name: 'GPT-4',
+        desc: 'Slower and more expensive, but more accurate',
+        price: {
+            input: 0.03 / 1000,
+            output: 0.06 / 1000
+        }
+    }
+};
+
 const localStorageGet = key => {
     return window.localStorage.getItem(key);
 };
@@ -12,25 +37,21 @@ if (!localStorageGet('model'))
 if (!localStorageGet('systemPrompt'))
     localStorageSet('systemPrompt', 'You are a helpful assistant.');
 
-const input = $('#input');
-const btnModel = $('#model');
-const btnSettings = $('#settings');
-const btnGo = $('#go');
-const elInteractions = $('#interactions');
-
 const setModel = model => {
     localStorageSet('model', model);
-    $('span', btnModel).innerText = model;
+    $('span', btnModel).innerText = models[model].name;
 };
 setModel(localStorageGet('model'));
 
 const getModelResponse = async(prompt) => {
     try {
+        const model = localStorageGet('model');
+        const systemPrompt = localStorageGet('systemPrompt');
         const res = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: localStorageGet('model'),
+            model: model,
             messages: [{
                 role: 'system',
-                content: localStorageGet('systemPrompt')
+                content: systemPrompt
             }, {
                 role: 'user',
                 content: prompt
@@ -42,16 +63,71 @@ const getModelResponse = async(prompt) => {
         });
         console.log(res.data);
         return {
-            success: true,
-            content: res.data.choices[0].message.content
+            time: Date.now(),
+            model, prompt,
+            response: res.data.choices[0].message.content,
+            tokens: {
+                input: res.data.usage.prompt_tokens,
+                output: res.data.usage.completion_tokens
+            }
         };
     } catch (error) {
         console.error(error, error.response?.data);
         return {
-            success: false,
             error: error.response?.data?.error?.message || `${error}`
         };
     }
+};
+
+const getInteractionElement = (interaction) => {
+    const elInteraction = document.createElement('div');
+    elInteraction.classList.add('interaction');
+    elInteraction.innerHTML = /*html*/`
+        <div class="topbar row gap-10 align-center flex-wrap">
+            <div class="row gap-10 align-center flex-grow">
+                <button class="collapse btn secondary small iconOnly">
+                    <div class="icon">expand_more</div>
+                </button>
+                <small style="margin-bottom: -3px">${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}</small>
+            </div>
+            <button class="delete btn secondary small iconOnly" disabled>
+                <div class="icon" style="color: var(--red3)">delete</div>
+            </button>
+        </div>
+        <div class="content col gap-10">
+            <div class="user">
+                <div class="header">You</div>
+                ${marked.parse(interaction.prompt)}
+            </div>
+            <div class="assistant">
+                <div class="header">${models[interaction.model].name}</div>
+                <div class="response">
+                    ${interaction.response ? marked.parse(interaction.response) : `
+                        <progress class="info" style="margin-top: -3px; margin-bottom: 3px"></progress>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+    const btnCollapse = $('.collapse', elInteraction);
+    btnCollapse.addEventListener('click', () => {
+        const elIcon = $('.icon', btnCollapse);
+        if (elIcon.innerText == 'expand_more') {
+            elIcon.innerText = 'chevron_right';
+            elInteraction.classList.add('collapsed');
+        } else {
+            elIcon.innerText = 'expand_more';
+            elInteraction.classList.remove('collapsed');
+        }
+    });
+    const btnDelete = $('.delete', elInteraction);
+    btnDelete.addEventListener('click', () => {
+        elInteraction.remove();
+        const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
+        delete savedInteractions[interaction.time];
+        localStorageSet('interactions', JSON.stringify(savedInteractions));
+    });
+    return elInteraction;
 };
 
 const sampleQuestions = [
@@ -98,29 +174,21 @@ input.addEventListener('keydown', e => {
 });
 
 btnModel.addEventListener('click', () => {
-    new ContextMenuBuilder()
-        .addItem(option => {
+    const menu = new ContextMenuBuilder().setIconVisibility(false);
+    for (const model in models) {
+        const modelInfo = models[model];
+        menu.addItem(option => {
             option.el.style.height = 'auto';
             option.el.style.padding = '6px 12px';
             option.elLabel.innerHTML = /*html*/`
-                <div style="margin-bottom: 2px">gpt-3.5-turbo</div>
-                <small>Cheap and fast, but less reliable</small>
+                <div style="margin-bottom: 2px">${modelInfo.name}</div>
+                <small>${modelInfo.desc}</small>
             `;
-            option.setClickHandler(() => setModel('gpt-3.5-turbo'));
+            option.setClickHandler(() => setModel(model));
             return option;
         })
-        .addItem(option => {
-            option.el.style.height = 'auto';
-            option.el.style.padding = '6px 12px';
-            option.elLabel.innerHTML = /*html*/`
-                <div style="margin-bottom: 2px">gpt-4</div>
-                <small>Slower and 10x as expensive, but more reliable</small>
-            `;
-            option.setClickHandler(() => setModel('gpt-4'));
-            return option;
-        })
-        .setIconVisibility(false)
-        .showAtCursor();
+    }
+    menu.showAtCursor();
 });
 
 btnSettings.addEventListener('click', () => {
@@ -157,82 +225,31 @@ btnSettings.addEventListener('click', () => {
 });
 if (!localStorageGet('apiKey')) btnSettings.click();
 
-const getInteractionElement = (prompt, response, model, time = Date.now()) => {
-    const elInteraction = document.createElement('div');
-    elInteraction.classList.add('interaction');
-    elInteraction.innerHTML = /*html*/`
-        <div class="topbar row gap-10 align-center flex-wrap">
-            <div class="row gap-10 align-center flex-grow">
-                <button class="collapse btn secondary small iconOnly">
-                    <div class="icon">expand_more</div>
-                </button>
-                <small style="margin-bottom: -3px">${dayjs(time).format('MMM D, YYYY, hh:mm A')}</small>
-            </div>
-            <button class="delete btn secondary small iconOnly" disabled>
-                <div class="icon" style="color: var(--red3)">delete</div>
-            </button>
-        </div>
-        <div class="content col gap-10">
-            <div class="user">
-                <div class="header">You</div>
-                ${marked.parse(prompt)}
-            </div>
-            <div class="assistant">
-                <div class="header">${model}</div>
-                <div class="response">
-                    ${response ? marked.parse(response) : `
-                        <progress class="info" style="margin-top: -3px; margin-bottom: 3px"></progress>
-                    `}
-                </div>
-            </div>
-        </div>
-    `;
-    const btnCollapse = $('.collapse', elInteraction);
-    btnCollapse.addEventListener('click', () => {
-        const elIcon = $('.icon', btnCollapse);
-        if (elIcon.innerText == 'expand_more') {
-            elIcon.innerText = 'chevron_right';
-            elInteraction.classList.add('collapsed');
-        } else {
-            elIcon.innerText = 'expand_more';
-            elInteraction.classList.remove('collapsed');
-        }
-    });
-    const btnDelete = $('.delete', elInteraction);
-    btnDelete.addEventListener('click', () => {
-        elInteraction.remove();
-        const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
-        delete savedInteractions[time];
-        localStorageSet('interactions', JSON.stringify(savedInteractions));
-    });
-    return elInteraction;
-};
-
 btnGo.addEventListener('click', async() => {
     if (btnGo.disabled) return;
     const prompt = input.value.trim();
     input.value = '';
     btnGo.disabled = true;
-    const elInteraction = getInteractionElement(prompt, null, localStorageGet('model'));
+    const elInteraction = getInteractionElement({
+        prompt: prompt,
+        model: localStorageGet('model'),
+        time: Date.now()
+    });
     elInteractions.insertAdjacentElement('afterbegin', elInteraction);
-    Prism.highlightAll();
-    const res = await getModelResponse(prompt);
+    const data = await getModelResponse(prompt);
     const elResponse = $('.response', elInteraction);
-    elResponse.innerHTML = marked.parse(res.content || res.error);
-    if (res.success) {
+    elResponse.innerHTML = marked.parse(data.response || data.error);
+    Prism.highlightAll();
+    if (!data.error) {
         const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
-        savedInteractions[Date.now()] = {
-            time: Date.now(),
-            prompt,
-            response: res.content,
-            model: localStorageGet('model')
-        };
+        savedInteractions[data.time] = data;
         const maxSavedLength = 100000;
         while (JSON.stringify(savedInteractions).length > maxSavedLength) {
             const oldestKey = Object.keys(savedInteractions).sort((a, b) => a - b)[0];
             delete savedInteractions[oldestKey];
         }
         localStorageSet('interactions', JSON.stringify(savedInteractions));
+        $('.delete', elInteraction).disabled = false;
     } else {
         elResponse.classList.add('error');
     }
@@ -243,12 +260,7 @@ const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
 const interactionValues = Object.values(savedInteractions);
 interactionValues.sort((a, b) => b.time - a.time);
 for (const interaction of interactionValues) {
-    const elInteraction = getInteractionElement(
-        interaction.prompt,
-        interaction.response,
-        interaction.model,
-        interaction.time
-    );
+    const elInteraction = getInteractionElement(interaction);
     $('.delete', elInteraction).disabled = false;
     elInteractions.appendChild(elInteraction);
 }
