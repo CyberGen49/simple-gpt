@@ -15,6 +15,10 @@ pre code {
     max-height: unset;
 }
 
+.container {
+    padding: 20px 10px;
+}
+
 .heading {
     font-size: 22px;
     font-weight: bold;
