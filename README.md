@@ -1,5 +1,5 @@
 # simple-gpt
-A simple webapp that allows you to interact with OpenAI's large language models (GPT-3.5 Turbo and GPT-4) without any context. Just ask it something and get a response.
+A simple webapp that allows you to interact with OpenAI's large language models without any context. Just ask it something and get a response.
 
 Features:
 - Entirely clientside
