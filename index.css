@@ -74,7 +74,7 @@ pre code {
     margin-bottom: 5px;
 }
 .interaction .content .response.error {
-    color: var(--red3);
+    color: var(--red2);
 }
 .interaction .topbar {
     padding: 8px;
