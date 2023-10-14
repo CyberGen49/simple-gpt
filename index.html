@@ -29,13 +29,13 @@
             document.body.classList = 'darkmuted';
         }
     </script>
-    <div id="main" class="row justify-center">
-        <div class="col gap-10" style="width: 1000px">
-            <div class="top col gap-15" style="padding: 20px 10px 0px 10px">
-                <div class="row align-end">
-                    <div class="heading flex-grow">SimpleGPT</div>
-                    <a href="https://github.com/CyberGen49/simple-gpt">GitHub</a>
-                </div>
+    <div class="container">
+        <div class="col gap-5">
+            <div class="row align-end">
+                <div class="heading flex-grow">SimpleGPT</div>
+                <a href="https://github.com/CyberGen49/simple-gpt">GitHub</a>
+            </div>
+            <div id="sticky">
                 <div class="draft col gap-10">
                     <textarea id="input" rows="3" data-make-expandable="true"></textarea>
                     <div class="row gap-10 flex-wrap align-end">
@@ -57,9 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div id="interactionsScroller">
-                <div id="interactions" class="col gap-10"></div>
-            </div>
+            <div id="interactions" class="col gap-10"></div>
         </div>
     </div>
 </body>

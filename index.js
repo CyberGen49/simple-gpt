@@ -269,3 +269,8 @@ for (const interaction of interactionValues) {
     $('.delete', elInteraction).disabled = false;
     elInteractions.appendChild(elInteraction);
 }
+
+window.addEventListener('resize', () => {
+    input.style.maxHeight = `${window.innerHeight*0.3}px`;
+});
+window.dispatchEvent(new Event('resize'));
