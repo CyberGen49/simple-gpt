@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleGPT</title>
+    <meta property="og:site_name" content="SimpleGPT">
+    <meta property="og:title" content="SimpleGPT">
+    <meta property="og:description" content="Use your own OpenAI API key to interact with GPT-3.5 Turbo and GPT-4 without context.">
+    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/base.css">
+    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/themes.css">
+    <link defer rel="stylesheet" href="/index.css">
+    <script defer src="https://src.simplecyber.org/lib/axios.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/marked.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/prism.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/tabbable.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/focus-trap.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/dayjs.min.js"></script>
+    <script defer src="https://src.simplecyber.org/utils.js"></script>
+    <script defer src="https://src.simplecyber.org/v2/base.js"></script>
+    <script defer src="/index.js"></script>
+</head>
+<body class="lightmuted">
+    <script>
+        // Use dark theme if the browser prefers it
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList = 'darkmuted';
+        }
+    </script>
+    <div id="main" class="row justify-center">
+        <div class="col gap-10" style="width: 1000px">
+            <div class="top col gap-15" style="padding: 20px 10px 0px 10px">
+                <div class="heading">SimpleGPT</div>
+                <div class="draft col gap-10">
+                    <textarea id="input" rows="3" data-make-expandable="true"></textarea>
+                    <div class="row gap-10 flex-wrap align-end">
+                        <div class="row gap-10 flex-wrap flex-grow">
+                            <button id="settings" class="btn secondary small">
+                                <div class="icon">settings</div>
+                                <span>Settings...</span>
+                            </button>
+                            <button id="model" class="btn secondary small">
+                                <div class="icon">model_training</div>
+                                <span></span>
+                                <div class="icon" style="margin-top: 1px">expand_more</div>
+                            </button>
+                        </div>
+                        <button id="go" class="btn success" disabled>
+                            <div class="icon">send</div>
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="interactionsScroller">
+                <div id="interactions" class="col gap-10"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
