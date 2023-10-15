@@ -8,7 +8,7 @@ const elInteractions = $('#interactions');
 const models = {
     'gpt-3.5-turbo': {
         name: 'GPT-3.5 Turbo',
-        desc: 'Cheap and fast, but less accurate',
+        desc: 'The original, fast, and cheap ChatGPT model',
         price: {
             input: 0.0015 / 1000,
             output: 0.002 / 1000
@@ -16,7 +16,7 @@ const models = {
     },
     'gpt-4': {
         name: 'GPT-4',
-        desc: 'Slower and more expensive, but more accurate',
+        desc: 'OpenAI\'s latest and greatest model, with high intelligence but at a higher price',
         price: {
             input: 0.03 / 1000,
             output: 0.06 / 1000
@@ -179,21 +179,33 @@ input.addEventListener('keydown', e => {
 });
 
 btnModel.addEventListener('click', () => {
-    const menu = new ContextMenuBuilder().setIconVisibility(false);
+    const el = document.createElement('div');
+    el.classList = 'col gap-10';
+    el.style.marginBottom = '10px';
+    const popup = new PopupBuilder()
+        .setTitle('Select model')
+        .addBody(el)
     for (const model in models) {
         const modelInfo = models[model];
-        menu.addItem(option => {
-            option.el.style.height = 'auto';
-            option.el.style.padding = '6px 12px';
-            option.elLabel.innerHTML = /*html*/`
-                <div style="margin-bottom: 2px">${modelInfo.name}</div>
+        const option = document.createElement('label');
+        option.classList = 'selectOption';
+        option.style.maxWidth = '300px';
+        option.innerHTML = `
+            <input type="radio" name="model" value="${model}" ${model == localStorageGet('model') ? 'checked' : ''}>
+            <div class="col gap-2">
+                <div>${modelInfo.name}</div>
                 <small>${modelInfo.desc}</small>
-            `;
-            option.setClickHandler(() => setModel(model));
-            return option;
-        })
+            </div>
+        `;
+        const radio = $('input', option);
+        radio.addEventListener('change', () => {
+            setModel(radio.value);
+            popup.hide();
+        });
+        el.appendChild(option);
     }
-    menu.showAtCursor();
+    $('.actions', popup.el).style.display = 'none';
+    popup.show();
 });
 
 btnSettings.addEventListener('click', () => {
