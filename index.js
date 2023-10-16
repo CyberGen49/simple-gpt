@@ -91,7 +91,11 @@ const getInteractionElement = (interaction) => {
                 <button class="collapse btn secondary small iconOnly">
                     <div class="icon">expand_more</div>
                 </button>
-                <small style="margin-bottom: -3px">${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}</small>
+                <small style="margin-bottom: -3px">
+                    ${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}
+                    <!-- • $<span class="price">${interaction.tokens ? `${
+                        roundSmart((interaction.tokens.input*models[interaction.model].price.input)+(interaction.tokens.output*models[interaction.model].price.output), 4)}`:'0.00'}</span> -->
+                </small>
             </div>
             <button class="delete btn secondary small iconOnly" disabled>
                 <div class="icon" style="color: var(--red3)">delete</div>
@@ -189,12 +193,17 @@ btnModel.addEventListener('click', () => {
         const modelInfo = models[model];
         const option = document.createElement('label');
         option.classList = 'selectOption';
-        option.style.maxWidth = '300px';
+        option.style.maxWidth = '400px';
         option.innerHTML = `
             <input type="radio" name="model" value="${model}" ${model == localStorageGet('model') ? 'checked' : ''}>
             <div class="col gap-2">
                 <div>${modelInfo.name}</div>
                 <small>${modelInfo.desc}</small>
+                <small>
+                    Input: About $${roundSmart(modelInfo.price.input*1000, 4)} per 1,000 words
+                    <br>
+                    Output: About $${roundSmart(modelInfo.price.output*1000, 4)} per 1,000 words
+                </small>
             </div>
         `;
         const radio = $('input', option);
@@ -217,7 +226,7 @@ btnSettings.addEventListener('click', () => {
             <label>OpenAI API Key</label>
             <input type="password" class="textbox" id="apiKey" value="${localStorageGet('apiKey') || ''}">
             <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>!</small>
-            <small class="pad-top">See pricing per model <a href="https://openai.com/pricing">here</a>. This site uses the base context models, so 8k context for GPT-4 and 4k context for GPT-3.5 Turbo.</small>
+            <small class="pad-top">See pricing per model <a href="https://openai.com/pricing">here</a>.</small>
         </div>
         <div style="width: 500px; max-width: 100%">
             <label>System prompt</label>
@@ -246,6 +255,7 @@ btnGo.addEventListener('click', async() => {
     if (btnGo.disabled) return;
     const prompt = input.value.trim();
     input.value = '';
+    input.dispatchEvent(new Event('input'));
     btnGo.disabled = true;
     const elInteraction = getInteractionElement({
         prompt: prompt,
