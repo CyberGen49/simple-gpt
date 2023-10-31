@@ -71,6 +71,7 @@ const getModelResponse = async(prompt, n) => {
                     },
                     timeout: requestTimeout
                 });
+                break;
             } catch (error) {
                 retryCount--;
                 if (retryCount == 0) {
