@@ -68,7 +68,9 @@ const getModelResponse = async(prompt, n) => {
         console.log(res.data);
         return {
             time: Date.now(),
-            model, prompt,
+            model,
+            system_prompt: systemPrompt,
+            prompt,
             response:
                 res.data.choices.length == 0
                     ? res.data.choices[0].message.content
