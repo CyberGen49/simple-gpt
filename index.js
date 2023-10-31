@@ -55,7 +55,7 @@ const getModelResponse = async(prompt, n) => {
         let res;
         while (retryCount > 0) {
             try {
-                await axios.post('https://api.openai.com/v1/chat/completions', {
+                res = await axios.post('https://api.openai.com/v1/chat/completions', {
                     model: model,
                     n: n,
                     messages: [{
