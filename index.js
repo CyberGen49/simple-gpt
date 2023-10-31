@@ -69,7 +69,10 @@ const getModelResponse = async(prompt, n) => {
         return {
             time: Date.now(),
             model, prompt,
-            response: res.data.choices[0].message.content,
+            response:
+                res.data.choices.length == 0
+                    ? res.data.choices[0].message.content
+                    : res.data.choices.map(x => x.message.content).join('\n'),
             tokens: {
                 input: res.data.usage.prompt_tokens,
                 output: res.data.usage.completion_tokens
