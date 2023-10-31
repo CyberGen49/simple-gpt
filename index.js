@@ -50,21 +50,34 @@ const getModelResponse = async(prompt, n) => {
     try {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
-        const res = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: model,
-            n: n,
-            messages: [{
-                role: 'system',
-                content: systemPrompt
-            }, {
-                role: 'user',
-                content: prompt
-            }]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${localStorageGet('apiKey')}`,
+        const requestTimeout = 90*1000;
+        let retryCount = 3;
+        let res;
+        while (retryCount > 0) {
+            try {
+                await axios.post('https://api.openai.com/v1/chat/completions', {
+                    model: model,
+                    n: n,
+                    messages: [{
+                        role: 'system',
+                        content: systemPrompt
+                    }, {
+                        role: 'user',
+                        content: prompt
+                    }]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorageGet('apiKey')}`,
+                    },
+                    timeout: requestTimeout
+                });
+            } catch (error) {
+                retryCount--;
+                if (retryCount == 0) {
+                    throw error;
+                }
             }
-        });
+        }
         console.log(res.data);
         return {
             time: Date.now(),
