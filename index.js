@@ -46,12 +46,13 @@ const setModel = model => {
 };
 setModel(localStorageGet('model'));
 
-const getModelResponse = async(prompt) => {
+const getModelResponse = async(prompt, n) => {
     try {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
         const res = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: model,
+            n: n,
             messages: [{
                 role: 'system',
                 content: systemPrompt
