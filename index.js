@@ -46,7 +46,7 @@ const setModel = model => {
 };
 setModel(localStorageGet('model'));
 
-const getModelResponse = async(prompt, n) => {
+const getModelResponse = async(prompt, n = 1) => {
     try {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
@@ -86,7 +86,7 @@ const getModelResponse = async(prompt, n) => {
             system_prompt: systemPrompt,
             prompt,
             response:
-                res.data.choices.length == 0
+                res.data.choices.length == 1
                     ? res.data.choices[0].message.content
                     : res.data.choices.map(x => x.message.content),
             tokens: {
