@@ -8,18 +8,26 @@ const elInteractions = $('#interactions');
 const models = {
     'gpt-3.5-turbo': {
         name: 'GPT-3.5 Turbo',
-        desc: 'The original, fast, and cheap ChatGPT model',
+        desc: 'The cheapest model that gets the job done, but not the smartest for complex tasks.',
         price: {
-            input: 0.0015 / 1000,
+            input: 0.001 / 1000,
             output: 0.002 / 1000
         }
     },
     'gpt-4': {
         name: 'GPT-4',
-        desc: 'OpenAI\'s latest and greatest model, with high intelligence but at a higher price',
+        desc: 'The current flagship model with high intelligence, but at a premium.',
         price: {
             input: 0.03 / 1000,
             output: 0.06 / 1000
+        }
+    },
+    'gpt-4-1106-preview': {
+        name: 'GPT-4 Turbo',
+        desc: 'The newest model. Still in preview, but cheaper and more powerful than GPT-4.',
+        price: {
+            input: 0.01 / 1000,
+            output: 0.03 / 1000
         }
     }
 };
