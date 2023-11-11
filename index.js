@@ -128,6 +128,9 @@ const getInteractionElement = (interaction) => {
             <button class="delete btn secondary small iconOnly" disabled>
                 <div class="icon" style="color: var(--red3)">delete</div>
             </button>
+            <button class="menu btn secondary small iconOnly" title="Interaction options...">
+                <div class="icon">more_vert</div>
+            </button>
         </div>
         <div class="content col gap-10">
             <div class="user">
@@ -163,6 +166,23 @@ const getInteractionElement = (interaction) => {
         const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
         delete savedInteractions[interaction.time];
         localStorageSet('interactions', JSON.stringify(savedInteractions));
+    });
+    const btnMenu = $('.menu', elInteraction);
+    btnMenu.addEventListener('click', () => {
+        new ContextMenuBuilder()
+            .addItem(item => item
+                .setLabel('Copy text prompt')
+                .setIcon('content_copy')
+                .setClickHandler(() => {
+                    navigator.clipboard.writeText(interaction.prompt);
+                }))
+            .addItem(item => item
+                .setLabel('Copy text response')
+                .setIcon('content_copy')
+                .setClickHandler(() => {
+                    navigator.clipboard.writeText(interaction.response || 'Loading...');
+                }))
+            .showAtCursor();
     });
     return elInteraction;
 };
