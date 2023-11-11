@@ -171,16 +171,47 @@ const getInteractionElement = (interaction) => {
     btnMenu.addEventListener('click', () => {
         new ContextMenuBuilder()
             .addItem(item => item
-                .setLabel('Copy text prompt')
+                .setLabel('Copy prompt as text')
                 .setIcon('content_copy')
                 .setClickHandler(() => {
                     navigator.clipboard.writeText(interaction.prompt);
                 }))
             .addItem(item => item
-                .setLabel('Copy text response')
+                .setLabel('Copy response as text')
                 .setIcon('content_copy')
                 .setClickHandler(() => {
                     navigator.clipboard.writeText(interaction.response || 'Loading...');
+                }))
+            .addItem(item => item
+                .setLabel('Copy response as HTML')
+                .setIcon('content_copy')
+                .setClickHandler(() => {
+                    navigator.clipboard.writeText(markdownToHtml(interaction.response || 'Loading...'));
+                }))
+            .addItem(item => item
+                .setLabel('Download interaction as text')
+                .setIcon('download')
+                .setClickHandler(() => {
+                    const data = [
+                        `Interaction occurred on ${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}`,
+                        '',
+                        'User prompt:',
+                        '='.repeat(50),
+                        '',
+                        interaction.prompt,
+                        '',
+                        `Response from ${models[interaction.model].name}:`,
+                        '='.repeat(50),
+                        '',
+                        interaction.response || 'Loading...'
+                    ].join('\n');
+                    const blob = new Blob([data], {type: 'text/plain'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `interaction-${interaction.time}.txt`;
+                    a.click();
+                    a.remove();
                 }))
             .showAtCursor();
     });
