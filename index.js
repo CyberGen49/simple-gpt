@@ -229,7 +229,7 @@ const getInteractionElement = (interaction) => {
                             <p>You're downloading this interaction in a viewable format, as a self-contained webpage. To view it, open the <code>.html</code> file in your web browser.</p>
                             <p>This is experimental and may not be working quite yet.</p>
                         `)
-                        .addAction(action => action.setTitle('Okay').setIsPrimary(true))
+                        .addAction(action => action.setLabel('Okay').setIsPrimary(true))
                         .show();
                 }))
             .addItem(item => item
