@@ -193,7 +193,7 @@ const getInteractionElement = (interaction) => {
                 .setIcon('download')
                 .setClickHandler(() => {
                     const data = [
-                        `Interaction occurred on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')}`,
+                        `Interaction happened on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
                         '',
                         'User prompt:',
                         '='.repeat(50),
@@ -212,7 +212,7 @@ const getInteractionElement = (interaction) => {
                     a.remove();
                 }))
             .addItem(item => item
-                .setLabel('Download response as markdown')
+                .setLabel('Download response as Markdown')
                 .setIcon('download')
                 .setClickHandler(() => {
                     const blob = new Blob([ interaction.response ], {
@@ -224,6 +224,26 @@ const getInteractionElement = (interaction) => {
                     a.download = `response-${interaction.time}.md`;
                     a.click();
                     a.remove();
+                }))
+            .addItem(item => item
+                .setLabel('Download interaction as viewable webpage')
+                .setIcon('download')
+                .setClickHandler(() => {
+                    const data = '';
+                    const blob = new Blob([ data ], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `interaction-${interaction.time}.html`;
+                    a.click();
+                    a.remove();
+                    new PopupBuilder()
+                        .setTitle(`Download started`)
+                        .addBodyHTML(/*html*/`
+                            <p>You're downloading this interaction in a viewable format, as a self-contained webpage. To view it, open the <code>.html</code> file in your web browser.</p>
+                        `)
+                        .addAction(action => action.setTitle('Okay').setIsPrimary(true))
+                        .show();
                 }))
             .showAtCursor();
     });
