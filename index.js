@@ -128,7 +128,7 @@ const getInteractionElement = (interaction) => {
             <button class="delete btn secondary small iconOnly" disabled>
                 <div class="icon" style="color: var(--red3)">delete</div>
             </button>
-            <button class="menu btn secondary small iconOnly" title="Export interaction...">
+            <button class="menu btn secondary small iconOnly" disabled title="Export interaction...">
                 <div class="icon">share</div>
             </button>
         </div>
@@ -166,87 +166,6 @@ const getInteractionElement = (interaction) => {
         const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
         delete savedInteractions[interaction.time];
         localStorageSet('interactions', JSON.stringify(savedInteractions));
-    });
-    const btnMenu = $('.menu', elInteraction);
-    btnMenu.addEventListener('click', () => {
-        new ContextMenuBuilder()
-            .addItem(item => item
-                .setLabel('Copy prompt as text')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.prompt);
-                }))
-            .addItem(item => item
-                .setLabel('Copy response as text')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.response || 'Loading...');
-                }))
-            .addItem(item => item
-                .setLabel('Copy response as HTML')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(markdownToHtml(interaction.response || 'Loading...'));
-                }))
-            .addItem(item => item
-                .setLabel('Download interaction as text')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const data = [
-                        `Interaction happened on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
-                        '',
-                        'User prompt:',
-                        '='.repeat(50),
-                        interaction.prompt,
-                        '',
-                        `Response from ${models[interaction.model].name}:`,
-                        '='.repeat(50),
-                        interaction.response || 'Loading...'
-                    ].join('\n');
-                    const blob = new Blob([data], {type: 'text/plain'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `interaction-${interaction.time}.txt`;
-                    a.click();
-                    a.remove();
-                }))
-            .addItem(item => item
-                .setLabel('Download interaction as webpage')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const data = '';
-                    const blob = new Blob([ data ], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `interaction-${interaction.time}.html`;
-                    a.click();
-                    a.remove();
-                    new PopupBuilder()
-                        .setTitle(`Download started`)
-                        .addBodyHTML(/*html*/`
-                            <p>You're downloading this interaction in a viewable format, as a self-contained webpage. To view it, open the <code>.html</code> file in your web browser.</p>
-                            <p>This is experimental and may not be working quite yet.</p>
-                        `)
-                        .addAction(action => action.setLabel('Okay').setIsPrimary(true))
-                        .show();
-                }))
-            .addItem(item => item
-                .setLabel('Download response as Markdown')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const blob = new Blob([ interaction.response ], {
-                        type: 'text/plain'
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `response-${interaction.time}.md`;
-                    a.click();
-                    a.remove();
-                }))
-            .showAtCursor();
     });
     return elInteraction;
 };
@@ -389,6 +308,88 @@ btnGo.addEventListener('click', async() => {
         }
         localStorageSet('interactions', JSON.stringify(savedInteractions));
         $('.delete', elInteraction).disabled = false;
+        const btnMenu = $('.menu', elInteraction);
+        btnMenu.addEventListener('click', () => {
+            new ContextMenuBuilder()
+                .addItem(item => item
+                    .setLabel('Copy prompt as text')
+                    .setIcon('content_copy')
+                    .setClickHandler(() => {
+                        navigator.clipboard.writeText(interaction.prompt);
+                    }))
+                .addItem(item => item
+                    .setLabel('Copy response as text')
+                    .setIcon('content_copy')
+                    .setClickHandler(() => {
+                        navigator.clipboard.writeText(interaction.response || 'Loading...');
+                    }))
+                .addItem(item => item
+                    .setLabel('Copy response as HTML')
+                    .setIcon('content_copy')
+                    .setClickHandler(() => {
+                        navigator.clipboard.writeText(markdownToHtml(interaction.response || 'Loading...'));
+                    }))
+                .addItem(item => item
+                    .setLabel('Download interaction as text')
+                    .setIcon('download')
+                    .setClickHandler(() => {
+                        const data = [
+                            `Interaction happened on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
+                            '',
+                            'User prompt:',
+                            '='.repeat(50),
+                            interaction.prompt,
+                            '',
+                            `Response from ${models[interaction.model].name}:`,
+                            '='.repeat(50),
+                            interaction.response || 'Loading...'
+                        ].join('\n');
+                        const blob = new Blob([data], {type: 'text/plain'});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `interaction-${interaction.time}.txt`;
+                        a.click();
+                        a.remove();
+                    }))
+                .addItem(item => item
+                    .setLabel('Download interaction as webpage')
+                    .setIcon('download')
+                    .setClickHandler(() => {
+                        const data = '';
+                        const blob = new Blob([ data ], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `interaction-${interaction.time}.html`;
+                        a.click();
+                        a.remove();
+                        new PopupBuilder()
+                            .setTitle(`Download started`)
+                            .addBodyHTML(/*html*/`
+                                <p>You're downloading this interaction in a viewable format, as a self-contained webpage. To view it, open the <code>.html</code> file in your web browser.</p>
+                                <p>This is experimental and may not be working quite yet.</p>
+                            `)
+                            .addAction(action => action.setLabel('Okay').setIsPrimary(true))
+                            .show();
+                    }))
+                .addItem(item => item
+                    .setLabel('Download response as Markdown')
+                    .setIcon('download')
+                    .setClickHandler(() => {
+                        const blob = new Blob([ interaction.response ], {
+                            type: 'text/plain'
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `response-${interaction.time}.md`;
+                        a.click();
+                        a.remove();
+                    }))
+                .showAtCursor();
+        });
+        btnMenu.disabled = false;
     } else {
         elResponse.classList.add('error');
     }
