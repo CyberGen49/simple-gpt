@@ -193,16 +193,14 @@ const getInteractionElement = (interaction) => {
                 .setIcon('download')
                 .setClickHandler(() => {
                     const data = [
-                        `Interaction occurred on ${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}`,
+                        `Interaction occurred on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')}`,
                         '',
                         'User prompt:',
                         '='.repeat(50),
-                        '',
                         interaction.prompt,
                         '',
                         `Response from ${models[interaction.model].name}:`,
                         '='.repeat(50),
-                        '',
                         interaction.response || 'Loading...'
                     ].join('\n');
                     const blob = new Blob([data], {type: 'text/plain'});
@@ -210,6 +208,20 @@ const getInteractionElement = (interaction) => {
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `interaction-${interaction.time}.txt`;
+                    a.click();
+                    a.remove();
+                }))
+            .addItem(item => item
+                .setLabel('Download response as markdown')
+                .setIcon('download')
+                .setClickHandler(() => {
+                    const blob = new Blob([ interaction.response ], {
+                        type: 'text/plain'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `response-${interaction.time}.md`;
                     a.click();
                     a.remove();
                 }))
