@@ -389,7 +389,7 @@ btnGo.addEventListener('click', async() => {
         }
         localStorageSet('interactions', JSON.stringify(savedInteractions));
         $('.delete', elInteraction).disabled = false;
-        btnMenu.disabled = false;
+        $('.menu', elInteraction).disabled = false;
     } else {
         elResponse.classList.add('error');
     }
@@ -402,6 +402,7 @@ interactionValues.sort((a, b) => b.time - a.time);
 for (const interaction of interactionValues) {
     const elInteraction = getInteractionElement(interaction);
     $('.delete', elInteraction).disabled = false;
+    $('.menu', elInteraction).disabled = false;
     elInteractions.appendChild(elInteraction);
 }
 
