@@ -212,20 +212,6 @@ const getInteractionElement = (interaction) => {
                     a.remove();
                 }))
             .addItem(item => item
-                .setLabel('Download response as Markdown')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const blob = new Blob([ interaction.response ], {
-                        type: 'text/plain'
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `response-${interaction.time}.md`;
-                    a.click();
-                    a.remove();
-                }))
-            .addItem(item => item
                 .setLabel('Download interaction as viewable webpage')
                 .setIcon('download')
                 .setClickHandler(() => {
@@ -244,6 +230,20 @@ const getInteractionElement = (interaction) => {
                         `)
                         .addAction(action => action.setTitle('Okay').setIsPrimary(true))
                         .show();
+                }))
+            .addItem(item => item
+                .setLabel('Download response as Markdown')
+                .setIcon('download')
+                .setClickHandler(() => {
+                    const blob = new Blob([ interaction.response ], {
+                        type: 'text/plain'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `response-${interaction.time}.md`;
+                    a.click();
+                    a.remove();
                 }))
             .showAtCursor();
     });
