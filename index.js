@@ -128,8 +128,8 @@ const getInteractionElement = (interaction) => {
             <button class="delete btn secondary small iconOnly" disabled>
                 <div class="icon" style="color: var(--red3)">delete</div>
             </button>
-            <button class="menu btn secondary small iconOnly" title="Interaction options...">
-                <div class="icon">more_vert</div>
+            <button class="menu btn secondary small iconOnly" title="Export interaction...">
+                <div class="icon">share</div>
             </button>
         </div>
         <div class="content col gap-10">
