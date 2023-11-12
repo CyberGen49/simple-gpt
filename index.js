@@ -113,6 +113,7 @@ const getModelResponse = async(prompt, n = 1) => {
 const getInteractionElement = (interaction) => {
     const elInteraction = document.createElement('div');
     elInteraction.classList.add('interaction');
+    elInteraction.dataset.time = interaction.time;
     elInteraction.innerHTML = /*html*/`
         <div class="topbar row gap-10 align-center flex-wrap">
             <div class="row gap-10 align-center flex-grow">
@@ -169,45 +170,46 @@ const getInteractionElement = (interaction) => {
     });
     const btnMenu = $('.menu', elInteraction);
     btnMenu.addEventListener('click', () => {
+        const currInteraction = savedInteractions[parseInt(elInteraction.dataset.time)] || interaction;
         new ContextMenuBuilder()
             .addItem(item => item
                 .setLabel('Copy prompt as text')
                 .setIcon('content_copy')
                 .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.prompt);
+                    navigator.clipboard.writeText(currInteraction.prompt);
                 }))
             .addItem(item => item
                 .setLabel('Copy response as text')
                 .setIcon('content_copy')
                 .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.response || 'Loading...');
+                    navigator.clipboard.writeText(currInteraction.response || 'Loading...');
                 }))
             .addItem(item => item
                 .setLabel('Copy response as HTML')
                 .setIcon('content_copy')
                 .setClickHandler(() => {
-                    navigator.clipboard.writeText(markdownToHtml(interaction.response || 'Loading...'));
+                    navigator.clipboard.writeText(markdownToHtml(currInteraction.response || 'Loading...'));
                 }))
             .addItem(item => item
                 .setLabel('Download interaction as text')
                 .setIcon('download')
                 .setClickHandler(() => {
                     const data = [
-                        `Interaction happened on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
+                        `Interaction happened on ${dayjs(currInteraction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
                         '',
                         'User prompt:',
                         '='.repeat(50),
-                        interaction.prompt,
+                        currInteraction.prompt,
                         '',
-                        `Response from ${models[interaction.model].name}:`,
+                        `Response from ${models[currInteraction.model].name}:`,
                         '='.repeat(50),
-                        savedInteractions[interaction.time].response || 'Loading...'
+                        currInteraction.response || 'Loading...'
                     ].join('\n');
                     const blob = new Blob([data], {type: 'text/plain'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `interaction-${interaction.time}.txt`;
+                    a.download = `interaction-${currInteraction.time}.txt`;
                     a.click();
                     a.remove();
                 }))
@@ -220,7 +222,7 @@ const getInteractionElement = (interaction) => {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `interaction-${interaction.time}.html`;
+                    a.download = `interaction-${currInteraction.time}.html`;
                     a.click();
                     a.remove();
                     new PopupBuilder()
@@ -236,13 +238,13 @@ const getInteractionElement = (interaction) => {
                 .setLabel('Download response as Markdown')
                 .setIcon('download')
                 .setClickHandler(() => {
-                    const blob = new Blob([ savedInteractions[interaction.time].response ], {
+                    const blob = new Blob([ currInteraction.response ], {
                         type: 'text/plain'
                     });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `response-${interaction.time}.md`;
+                    a.download = `response-${currInteraction.time}.md`;
                     a.click();
                     a.remove();
                 }))
@@ -390,6 +392,7 @@ btnGo.addEventListener('click', async() => {
         localStorageSet('interactions', JSON.stringify(savedInteractions));
         $('.delete', elInteraction).disabled = false;
         $('.menu', elInteraction).disabled = false;
+        elInteraction.dataset.time = data.time;
     } else {
         elResponse.classList.add('error');
     }
