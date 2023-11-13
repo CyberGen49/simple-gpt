@@ -251,39 +251,12 @@ const getInteractionElement = (interaction) => {
     return elInteraction;
 };
 
-const sampleQuestions = [
-    "Summarise Think and Grow Rich",
-    "Create a simple HTML page",
-    "Create a HTML vat calculator",
-    "Create a JavaScript countdown to December 31st 2023",
-    "Create a PHP mortgage calculator",
-    "Create a function in C++",
-    "Write a slogan for a coffee bean company",
-    "Write a letter demanding my landlord address a mould and damp issue in the home I rent",
-    "Create a 6 month employment contract for a freelance graphic designer",
-    "How do I grow a YouTube channel?",
-    "How do I grow a brand on Amazon FBA?",
-    "Write a short story about a cat named Mimi",
-    "Create a 2000 calorie 7-day meal plan",
-    "Write a wedding speech for a groom named Brian who is marrying Jenny",
-    "Write an email inviting people to my wedding",
-    "Write a cold email to a dog grooming business to sell them SEO services",
-    "Write 5 titles for a blogpost about learning to use AI",
-    "Create 5 google ads to promote a pet grooming business",
-    "Write a song about a dog that turns to crime to feed it's bone addiction",
-    "Output the first page of Alice in Wonderland",
-    "Teach me how to use Photoshop",
-    "Come up with a few name ideas for a cat using wordplay",
-    "Create a Chrome extension to print a page to PDF",
-    "Suggest 10 birthday gifts for a 40 year old man",
-    "List what items I need to go on a trip on the London to Amsterdam train",
-    "Give me a recipe for Spanish omelette",
-    "Write the script for the next Hollywood blockbuster",
-    "List 10 ideas for a million dollar product in 2023",
-    "Tell me an extremely funny joke that involves 3 characters"
-];
-
-input.placeholder = sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)];
+let samplePrompts = [];
+(async() => {
+    const res = await axios.get('/prompts.json');
+    samplePrompts = res.data;
+    input.placeholder = getRandomElement(samplePrompts);
+})();
 
 input.addEventListener('keydown', e => {
     if (e.ctrlKey && e.code == 'Enter') {
@@ -366,6 +339,7 @@ if (!localStorageGet('apiKey')) btnSettings.click();
 btnGo.addEventListener('click', async() => {
     if (btnGo.disabled) return;
     const prompt = input.value.trim();
+    input.placeholder = getRandomElement(samplePrompts);
     input.value = '';
     input.dispatchEvent(new Event('input'));
     btnGo.disabled = true;
