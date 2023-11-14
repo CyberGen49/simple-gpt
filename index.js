@@ -349,6 +349,7 @@ btnGo.addEventListener('click', async() => {
         time: Date.now()
     });
     elInteractions.insertAdjacentElement('afterbegin', elTemp);
+    elTemp.scrollIntoView();
     const data = await getModelResponse(prompt);
     if (!data.error) {
         const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');

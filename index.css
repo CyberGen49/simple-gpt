@@ -29,6 +29,7 @@ pre code {
     top: 0px;
     background: var(--b1);
     padding: 10px 0px;
+    z-index: 2;
 }
 
 .draft {
