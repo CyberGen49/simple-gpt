@@ -8,7 +8,7 @@ const elInteractions = $('#interactions');
 const models = {
     'gpt-3.5-turbo': {
         name: 'GPT-3.5 Turbo',
-        desc: 'The cheapest model that gets the job done, but not the smartest for complex tasks.',
+        desc: 'GPT-3.5 Turbo models are capable and cost-effective.',
         price: {
             input: 0.001 / 1000,
             output: 0.002 / 1000
@@ -16,7 +16,7 @@ const models = {
     },
     'gpt-4': {
         name: 'GPT-4',
-        desc: 'The current flagship model with high intelligence, but at a premium.',
+        desc: 'With broad general knowledge and domain expertise, GPT-4 can follow complex instructions in natural language and solve difficult problems with accuracy.',
         price: {
             input: 0.03 / 1000,
             output: 0.06 / 1000
@@ -24,7 +24,7 @@ const models = {
     },
     'gpt-4-1106-preview': {
         name: 'GPT-4 Turbo',
-        desc: 'The newest model. Still in preview, but cheaper and more powerful than GPT-4.',
+        desc: 'With 128k context, fresher knowledge and the broadest set of capabilities, GPT-4 Turbo is more powerful than GPT-4 and offered at a lower price.',
         price: {
             input: 0.01 / 1000,
             output: 0.03 / 1000
