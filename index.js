@@ -269,7 +269,7 @@ elInput.addEventListener('input', e => {
         btnSend.disabled = false;
 });
 elInput.addEventListener('keydown', e => {
-    if (e.key == 'Enter' && e.ctrlKey) {
+    if (e.key == 'Enter' && !e.ctrlKey) {
         btnSend.click();
     }
 });
