@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleGPT</title>
+    <link rel="icon" href="/icon.png">
+    <meta property="og:site_name" content="SimpleGPT">
+    <meta property="og:title" content="SimpleGPT">
+    <meta property="og:description" content="A simple webapp that allows you to interact with OpenAI's large language models without any context. Just ask it something and get a response.">
+    <meta name="theme-color" content="#1c2022">
+    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/base.css">
+    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/themes.css">
+    <link defer rel="stylesheet" href="/index.css">
+    <script defer src="https://src.simplecyber.org/lib/axios.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/marked.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/prism.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/tabbable.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/focus-trap.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/dayjs.min.js"></script>
+    <script defer src="https://src.simplecyber.org/lib/purify.min.js"></script>
+    <script defer src="https://src.simplecyber.org/utils.js"></script>
+    <script defer src="https://src.simplecyber.org/v2/base.js"></script>
+    <script defer src="/index.js"></script>
+</head>
+<body class="darkmuted">
+    <div class="container">
+        <div class="col gap-5">
+            <div class="row align-end">
+                <div class="heading flex-grow">SimpleGPT</div>
+                <a href="https://github.com/CyberGen49/simple-gpt">GitHub</a>
+            </div>
+            <div id="sticky">
+                <div class="draft col gap-10">
+                    <textarea id="input" rows="3" data-make-expandable="true"></textarea>
+                    <div class="row gap-10 flex-wrap align-end">
+                        <div class="row gap-10 flex-wrap flex-grow">
+                            <button id="settings" class="btn secondary small">
+                                <div class="icon">settings</div>
+                                <span>Settings...</span>
+                            </button>
+                            <button id="model" class="btn secondary small">
+                                <div class="icon">model_training</div>
+                                <span></span>
+                                <div class="icon" style="margin-top: 1px">expand_more</div>
+                            </button>
+                        </div>
+                        <button id="go" class="btn success" disabled>
+                            <div class="icon">send</div>
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="interactions" class="col gap-10"></div>
+        </div>
+    </div>
+</body>
+</html>

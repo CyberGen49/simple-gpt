@@ -4,55 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SimpleGPT</title>
-    <link rel="icon" href="/icon.png">
-    <meta property="og:site_name" content="SimpleGPT">
-    <meta property="og:title" content="SimpleGPT">
-    <meta property="og:description" content="A simple webapp that allows you to interact with OpenAI's large language models without any context. Just ask it something and get a response.">
-    <meta name="theme-color" content="#1c2022">
-    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/base.css">
-    <link defer rel="stylesheet" href="https://src.simplecyber.org/v2/themes.css">
-    <link defer rel="stylesheet" href="/index.css">
-    <script defer src="https://src.simplecyber.org/lib/axios.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/marked.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/prism.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/tabbable.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/focus-trap.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/dayjs.min.js"></script>
-    <script defer src="https://src.simplecyber.org/lib/purify.min.js"></script>
-    <script defer src="https://src.simplecyber.org/utils.js"></script>
-    <script defer src="https://src.simplecyber.org/v2/base.js"></script>
+    <link rel="stylesheet" href="/index.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script defer src="/index.js"></script>
 </head>
-<body class="darkmuted">
-    <div class="container">
-        <div class="col gap-5">
-            <div class="row align-end">
-                <div class="heading flex-grow">SimpleGPT</div>
-                <a href="https://github.com/CyberGen49/simple-gpt">GitHub</a>
-            </div>
-            <div id="sticky">
-                <div class="draft col gap-10">
-                    <textarea id="input" rows="3" data-make-expandable="true"></textarea>
-                    <div class="row gap-10 flex-wrap align-end">
-                        <div class="row gap-10 flex-wrap flex-grow">
-                            <button id="settings" class="btn secondary small">
-                                <div class="icon">settings</div>
-                                <span>Settings...</span>
-                            </button>
-                            <button id="model" class="btn secondary small">
-                                <div class="icon">model_training</div>
-                                <span></span>
-                                <div class="icon" style="margin-top: 1px">expand_more</div>
-                            </button>
-                        </div>
-                        <button id="go" class="btn success" disabled>
-                            <div class="icon">send</div>
-                            Send
-                        </button>
-                    </div>
+<body>
+    <div id="main" class="row justify-center">
+        <div id="ui" class="col" style="width: 1200px">
+            <div id="topbar" class="row align-center flex-wrap flex-no-shrink">
+                <div class="flex-grow">
+                    <h3>SimpleGPT</h3>
+                </div>
+                <div class="row gap-10">
+                    <button id="model" class="btn">
+                        <span class="icon">model_training</span>
+                        <span>Model: <b id="modelName">unknown</b></span>
+                    </button>
+                    <button id="settings" class="btn">
+                        <span class="icon">settings</span>
+                        <span>Settings</span>
+                    </button>
+                    <button id="popOut" class="btn icon" title="Open as popup...">open_in_new</button>
                 </div>
             </div>
-            <div id="interactions" class="col gap-10"></div>
+            <div id="interactions" class="col flex-grow">
+                <div class="text-center" style="padding: 30px 0px"></div>
+            </div>
+            <div id="draftSep" class="flex-no-shrink"></div>
+            <div id="draft" class="row gap-5 align-center flex-no-shrink">
+                <textarea id="input" class="flex-grow" rows="1"></textarea>
+                <button id="send" class="btn icon no-shadow" title="Send (Ctrl + Enter)" disabled>send</button>
+            </div>
         </div>
     </div>
 </body>

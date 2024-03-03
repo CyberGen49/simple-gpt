@@ -1,28 +1,22 @@
-
-const input = $('#input');
-const btnModel = $('#model');
-const btnSettings = $('#settings');
-const btnGo = $('#go');
-const elInteractions = $('#interactions');
+const elUi = document.querySelector('#ui');
+const elInteractions = document.querySelector('#interactions');
+const elInput = document.querySelector('#input');
+const btnSend = document.querySelector('#send');
+const btnModel = document.querySelector('#model');
+const btnModelName = document.querySelector('#modelName');
+const btnSettings = document.querySelector('#settings');
+const btnPopOut = document.querySelector('#popOut');
 
 const models = {
     'gpt-3.5-turbo': {
         name: 'GPT-3.5 Turbo',
         desc: 'GPT-3.5 Turbo models are capable and cost-effective.',
         price: {
-            input: 0.001 / 1000,
-            output: 0.002 / 1000
+            input: 0.0005 / 1000,
+            output: 0.0015 / 1000
         }
     },
-    'gpt-4': {
-        name: 'GPT-4',
-        desc: 'With broad general knowledge and domain expertise, GPT-4 can follow complex instructions in natural language and solve difficult problems with accuracy.',
-        price: {
-            input: 0.03 / 1000,
-            output: 0.06 / 1000
-        }
-    },
-    'gpt-4-1106-preview': {
+    'gpt-4-turbo-preview': {
         name: 'GPT-4 Turbo',
         desc: 'With 128k context, fresher knowledge and the broadest set of capabilities, GPT-4 Turbo is more powerful than GPT-4 and offered at a lower price.',
         price: {
@@ -31,6 +25,10 @@ const models = {
         }
     }
 };
+
+const getRandomElement = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
 const localStorageGet = key => {
     return window.localStorage.getItem(key);
@@ -43,346 +41,259 @@ const markdownToHtml = markdown => {
     return DOMPurify.sanitize(marked.parse(markdown));
 };
 
-if (!localStorageGet('model'))
-    localStorageSet('model', 'gpt-3.5-turbo');
-if (!localStorageGet('systemPrompt'))
-    localStorageSet('systemPrompt', 'You are a helpful assistant.');
+const createPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
+    const dialog = document.createElement('dialog');
+    dialog.classList.add('dialog');
+    dialog.innerHTML = /*html*/`
+        <div class="content col gap-15">
+            <div class="title">
+                <h4>${titleHTML}</h4>
+            </div>
+            <div class="body">${bodyHTML}</div>
+            <div class="actions row gap-10" style="flex-direction: row-reverse"></div>
+        </div>
+    `;
+    if (!actions) actions = [{
+        label: 'Close',
+        onClick: () => dialog.close()
+    }];
+    for (const action of actions) {
+        const btn = document.createElement('button');
+        btn.classList = 'btn';
+        btn.innerText = action.label;
+        btn.addEventListener('click', () => {
+            action.onClick();
+            dialog.close();
+        });
+        dialog.querySelector('.actions').appendChild(btn);
+    }
+    document.body.appendChild(dialog);
+    return dialog;
+}
 
-const setModel = model => {
-    localStorageSet('model', model);
-    $('span', btnModel).innerText = models[model].name;
-};
-setModel(localStorageGet('model'));
-
-const getModelResponse = async(prompt, n = 1) => {
+let generationInProgress = false;
+const getModelResponse = async(prompt, streamCb = () => {}) => {
     try {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
-        const requestTimeout = 90*1000;
-        let retryCount = 3;
-        let res;
-        while (retryCount > 0) {
-            try {
-                res = await axios.post('https://api.openai.com/v1/chat/completions', {
-                    model: model,
-                    n: n,
-                    messages: [{
-                        role: 'system',
-                        content: systemPrompt
-                    }, {
-                        role: 'user',
-                        content: prompt
-                    }]
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorageGet('apiKey')}`,
-                    },
-                    timeout: requestTimeout
-                });
-                break;
-            } catch (error) {
-                retryCount--;
-                if (retryCount == 0) {
-                    throw error;
+        const key = localStorageGet('apiKey');
+        let isFinished = false;
+        let response = '';
+        let lastResponseText = '';
+        generationInProgress = true;
+        const res = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: model,
+            stream: true,
+            messages: [{
+                role: 'system',
+                content: systemPrompt
+            }, {
+                role: 'user',
+                content: prompt
+            }]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${key}`,
+            },
+            onDownloadProgress: progressEvent => {
+                const xhr = progressEvent.event.target
+                const text = xhr.responseText.replace(lastResponseText, '');
+                lastResponseText = xhr.responseText;
+                const messages = text.split('\n').filter(x => x);
+                for (const message of messages) {
+                    const json = message.replace(/^data: /, '');
+                    if (json == '[DONE]') {
+                        isFinished = true;
+                        break;
+                    }
+                    const data = JSON.parse(json);
+                    const delta = data.choices[0].delta.content;
+                    if (!delta) continue;
+                    response += delta;
+                    streamCb(delta, response);
                 }
             }
-        }
-        console.log(res.data);
-        return {
-            time: Date.now(),
-            model,
-            system_prompt: systemPrompt,
-            prompt,
-            response:
-                res.data.choices.length == 1
-                    ? res.data.choices[0].message.content
-                    : res.data.choices.map(x => x.message.content),
-            tokens: {
-                input: res.data.usage.prompt_tokens,
-                output: res.data.usage.completion_tokens
-            }
-        };
+        });
+        generationInProgress = false;
+        elInput.dispatchEvent(new Event('input'));
+        return response;
     } catch (error) {
-        console.error(error, error.response?.data);
-        return {
-            error: error.response?.data?.error?.message || `${error}`
-        };
+        console.log(error);
+        generationInProgress = false;
+        elInput.dispatchEvent(new Event('input'));
+        return false;
     }
 };
 
-const getInteractionElement = (interaction) => {
-    const elInteraction = document.createElement('div');
-    elInteraction.classList.add('interaction');
-    elInteraction.innerHTML = /*html*/`
-        <div class="topbar row gap-10 align-center flex-wrap">
-            <div class="row gap-10 align-center flex-grow">
-                <button class="collapse btn secondary small iconOnly">
-                    <div class="icon">expand_more</div>
-                </button>
-                <small style="margin-bottom: -3px">
-                    ${dayjs(interaction.time).format('MMM D, YYYY, h:mm A')}
-                    <!-- • $<span class="price">${interaction.tokens ? `${
-                        roundSmart((interaction.tokens.input*models[interaction.model].price.input)+(interaction.tokens.output*models[interaction.model].price.output), 4)}`:'0.00'}</span> -->
-                </small>
-            </div>
-            <button class="delete btn secondary small iconOnly" disabled>
-                <div class="icon" style="color: var(--red3)">delete</div>
-            </button>
-            <button class="menu btn secondary small iconOnly" disabled title="Export interaction...">
-                <div class="icon">share</div>
-            </button>
-        </div>
-        <div class="content col gap-10">
-            <div class="user">
-                <div class="header">You</div>
-                <div class="prompt">
-                    ${markdownToHtml(interaction.prompt)}
-                </div>
-            </div>
-            <div class="assistant">
-                <div class="header">${models[interaction.model].name}</div>
-                <div class="response">
-                    ${interaction.response ? markdownToHtml(interaction.response) : `
-                        <progress class="info" style="margin-top: -3px; margin-bottom: 3px"></progress>
-                    `}
-                </div>
-            </div>
+const setModel = model => {
+    localStorageSet('model', model);
+    btnModelName.innerText = models[model].name;
+};
+
+if (!localStorageGet('model'))
+    setModel('gpt-4-turbo-preview');
+if (!localStorageGet('systemPrompt'))
+    localStorageSet('systemPrompt', 'You are a helpful assistant.');
+
+setModel(localStorageGet('model'));
+
+const addMessage = (role, name, content) => {
+    const el = document.createElement('div');
+    el.classList = `message ${role} row gap-10`;
+    el.innerHTML = /*html*/`
+        <div class="picture"></div>
+        <div class="col gap-5">
+            <div class="name">${name}</div>
+            <div class="content">${content}</div>
         </div>
     `;
-    const btnCollapse = $('.collapse', elInteraction);
-    btnCollapse.addEventListener('click', () => {
-        const elIcon = $('.icon', btnCollapse);
-        if (elIcon.innerText == 'expand_more') {
-            elIcon.innerText = 'chevron_right';
-            elInteraction.classList.add('collapsed');
-        } else {
-            elIcon.innerText = 'expand_more';
-            elInteraction.classList.remove('collapsed');
-        }
-    });
-    const btnDelete = $('.delete', elInteraction);
-    btnDelete.addEventListener('click', () => {
-        elInteraction.remove();
-        const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
-        delete savedInteractions[interaction.time];
-        localStorageSet('interactions', JSON.stringify(savedInteractions));
-    });
-    const btnMenu = $('.menu', elInteraction);
-    btnMenu.addEventListener('click', () => {
-        new ContextMenuBuilder()
-            .addItem(item => item
-                .setLabel('Copy prompt as text')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.prompt);
-                }))
-            .addItem(item => item
-                .setLabel('Copy response as text')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(interaction.response || 'Loading...');
-                }))
-            .addItem(item => item
-                .setLabel('Copy response as HTML')
-                .setIcon('content_copy')
-                .setClickHandler(() => {
-                    navigator.clipboard.writeText(markdownToHtml(interaction.response || 'Loading...'));
-                }))
-            .addItem(item => item
-                .setLabel('Download interaction as text')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const data = [
-                        `Interaction happened on ${dayjs(interaction.time).format('MMM D YYYY [at] h:mm A')} local system time`,
-                        '',
-                        'User prompt:',
-                        '='.repeat(50),
-                        interaction.prompt,
-                        '',
-                        `Response from ${models[interaction.model].name}:`,
-                        '='.repeat(50),
-                        interaction.response || 'Loading...'
-                    ].join('\n');
-                    const blob = new Blob([data], {type: 'text/plain'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `interaction-${interaction.time}.txt`;
-                    a.click();
-                    a.remove();
-                }))
-            .addItem(item => item
-                .setLabel('Download interaction as webpage')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const data = '';
-                    const blob = new Blob([ data ], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `interaction-${interaction.time}.html`;
-                    a.click();
-                    a.remove();
-                    new PopupBuilder()
-                        .setTitle(`Download started`)
-                        .addBodyHTML(/*html*/`
-                            <p>You're downloading this interaction in a viewable format, as a self-contained webpage. To view it, open the <code>.html</code> file in your web browser.</p>
-                            <p>This is experimental and may not be working quite yet.</p>
-                        `)
-                        .addAction(action => action.setLabel('Okay').setIsPrimary(true))
-                        .show();
-                }))
-            .addItem(item => item
-                .setLabel('Download response as Markdown')
-                .setIcon('download')
-                .setClickHandler(() => {
-                    const blob = new Blob([ interaction.response ], {
-                        type: 'text/plain'
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `response-${interaction.time}.md`;
-                    a.click();
-                    a.remove();
-                }))
-            .showAtCursor();
-    });
-    return elInteraction;
-};
+    elInteractions.insertAdjacentElement('afterbegin', el);
+    elInteractions.scrollTop = elInteractions.scrollHeight;
+    return el;
+}
 
 let samplePrompts = [];
 (async() => {
     const res = await axios.get('/prompts.json');
     samplePrompts = res.data;
     input.placeholder = getRandomElement(samplePrompts);
+    elInput.dispatchEvent(new Event('input'));
 })();
 
-input.addEventListener('keydown', e => {
-    if (e.ctrlKey && e.code == 'Enter') {
-        btnGo.click();
-    }
-    setTimeout(() => {
-        btnGo.disabled = (!input.value.trim());
-    }, 0);
-});
-
 btnModel.addEventListener('click', () => {
-    const el = document.createElement('div');
-    el.classList = 'col gap-10';
-    el.style.marginBottom = '10px';
-    const popup = new PopupBuilder()
-        .setTitle('Select model')
-        .addBody(el)
-    for (const model in models) {
-        const modelInfo = models[model];
-        const option = document.createElement('label');
-        option.classList = 'selectOption';
-        option.style.maxWidth = '400px';
-        option.innerHTML = `
-            <input type="radio" name="model" value="${model}" ${model == localStorageGet('model') ? 'checked' : ''}>
-            <div class="col gap-2">
-                <div>${modelInfo.name}</div>
-                <small>${modelInfo.desc}</small>
-                <small>
-                    Input: About $${roundSmart(modelInfo.price.input*1000, 4)} per 1,000 words
-                    <br>
-                    Output: About $${roundSmart(modelInfo.price.output*1000, 4)} per 1,000 words
-                </small>
-            </div>
+    const popup = createPopup('Change model');
+    const body = popup.querySelector('.body');
+    body.classList = 'col gap-10';
+    for (const modelId in models) {
+        const model = models[modelId];
+        const btn = document.createElement('button');
+        btn.classList = 'btn';
+        btn.style.height = 'auto';
+        btn.style.padding = '10px 15px';
+        btn.style.display = 'block';
+        btn.style.maxWidth = '500px';
+        btn.style.textAlign = 'left';
+        btn.style.whiteSpace = 'normal';
+        btn.innerHTML = /*html*/`
+            <p><b>${model.name}</b></p>
+            <p>${model.desc}</p>
+            <p>
+                About $${model.price.input*1000} per 1000 words of input.
+                <br>About $${model.price.output*1000} per 1000 words of output.
+            </p>
         `;
-        const radio = $('input', option);
-        radio.addEventListener('change', () => {
-            setModel(radio.value);
-            popup.hide();
+        btn.addEventListener('click', () => {
+            setModel(modelId);
+            popup.close();
         });
-        el.appendChild(option);
+        body.appendChild(btn);
     }
-    $('.actions', popup.el).style.display = 'none';
-    popup.show();
+    popup.showModal();
 });
 
 btnSettings.addEventListener('click', () => {
-    const el = document.createElement('div');
-    el.classList = 'col gap-15'
-    el.style.paddingTop = '5px'
-    el.innerHTML = /*html*/`
-        <div style="width: 500px; max-width: 100%">
-            <label>OpenAI API Key</label>
-            <input type="password" class="textbox" id="apiKey" value="${localStorageGet('apiKey') || ''}">
-            <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>!</small>
-            <small class="pad-top">See pricing per model <a href="https://openai.com/pricing">here</a>.</small>
-        </div>
-        <div style="width: 500px; max-width: 100%">
-            <label>System prompt</label>
-            <div class="textbox textarea">
-                <textarea rows="5">${localStorageGet('systemPrompt') || ''}</textarea>
+    const popup = createPopup('Settings', /*html*/`
+        <div class="col gap-15">
+            <div class="col">
+                <label>OpenAI API key</label>
+                <div class="row gap-10">
+                    <input type="password" id="apiKey" class="textbox" placeholder="<paste key here>" style="width: 400px">
+                    <button id="keyVisibility" class="btn icon">visibility</button>
+                </div>
+                <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>.</small>
+            </div>
+            <div class="col">
+                <label>Context amount</label>
+                <input type="number" id="contextCount" class="textbox" placeholder="1" style="width: 100px">
+                <small class="pad-top">This value determines how many previous interactions are included as context for new interactions. For example, if set to 1, new interactions will only use the previous user-model interaction as context.</small>
+                <small class="pad-top">Higher values will make the bot remember more, but will lead to higher costs and longer loading times. This number will always be capped at the model's max context window in tokens.</small>
+                <small class="pad-top">Set to 0 to send no context with new interactions.</small>
+            </div>
+            <div class="col">
+                <label>Active model</label>
+                <div>
+                    <button id="settingsChangeModel" class="btn">Change model...</button>
+                </div>
             </div>
         </div>
-    `;
-    const inputKey = $('#apiKey', el);
-    const inputSystemPrompt = $('textarea', el);
-    inputKey.addEventListener('input', () => {
-        localStorageSet('apiKey', inputKey.value);
+    `);
+    const body = popup.querySelector('.body');
+    const inputApiKey = body.querySelector('#apiKey');
+    const btnKeyVisibility = body.querySelector('#keyVisibility');
+    const inputContextCount = body.querySelector('#contextCount');
+    const btnChangeModel = body.querySelector('#settingsChangeModel');
+    btnChangeModel.addEventListener('click', () => {
+        btnModel.click();
     });
-    inputSystemPrompt.addEventListener('input', () => {
-        localStorageSet('systemPrompt', inputSystemPrompt.value);
+    inputApiKey.addEventListener('input', () => {
+        localStorageSet('apiKey', inputApiKey.value);
     });
-    new PopupBuilder()
-        .setTitle('Settings')
-        .addBody(el)
-        .addAction(action => action.setLabel('Done').setIsPrimary(true))
-        .show();
-});
-if (!localStorageGet('apiKey')) btnSettings.click();
-
-btnGo.addEventListener('click', async() => {
-    if (btnGo.disabled) return;
-    const prompt = input.value.trim();
-    input.placeholder = getRandomElement(samplePrompts);
-    input.value = '';
-    input.dispatchEvent(new Event('input'));
-    btnGo.disabled = true;
-    const elTemp = getInteractionElement({
-        prompt: prompt,
-        model: localStorageGet('model'),
-        time: Date.now()
+    btnKeyVisibility.addEventListener('click', () => {
+        inputApiKey.type = inputApiKey.type == 'password' ? 'text' : 'password';
     });
-    elInteractions.insertAdjacentElement('afterbegin', elTemp);
-    const data = await getModelResponse(prompt);
-    if (!data.error) {
-        const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
-        savedInteractions[data.time] = data;
-        const maxSavedLength = 100000;
-        while (JSON.stringify(savedInteractions).length > maxSavedLength) {
-            const oldestKey = Object.keys(savedInteractions).sort((a, b) => a - b)[0];
-            delete savedInteractions[oldestKey];
-        }
-        localStorageSet('interactions', JSON.stringify(savedInteractions));
-        const elNew = getInteractionElement(data);
-        elInteractions.replaceChild(elNew, elTemp);
-        $('.delete', elNew).disabled = false;
-        $('.menu', elNew).disabled = false;
-        Prism.highlightAll();
-    } else {
-        const elResponse = $('.response', elTemp);
-        elResponse.innerHTML = data.error;
-        elResponse.classList.add('error');
-    }
+    inputApiKey.value = localStorageGet('apiKey');
+    inputContextCount.addEventListener('input', () => {
+        localStorageSet('contextCount', parseInt(inputContextCount.value));
+    });
+    inputContextCount.value = localStorageGet('contextCount') || 1;
+    popup.showModal();
 });
 
-// Load interactions
-const savedInteractions = JSON.parse(localStorageGet('interactions') || '{}');
-const interactionValues = Object.values(savedInteractions);
-interactionValues.sort((a, b) => b.time - a.time);
-for (const interaction of interactionValues) {
-    const elInteraction = getInteractionElement(interaction);
-    $('.delete', elInteraction).disabled = false;
-    $('.menu', elInteraction).disabled = false;
-    elInteractions.appendChild(elInteraction);
+btnPopOut.addEventListener('click', () => {
+    // Open the page in a 500x800 popup
+    // Center the popup on the screen
+    const width = 500;
+    const height = 800;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    window.open(window.location.href, 'simplegpt', `width=${width},height=${height},left=${left},top=${top}`).focus();
+});
+
+// Hide popup button if in popup
+if (window.opener) {
+    btnPopOut.style.display = 'none';
 }
 
-window.addEventListener('resize', () => {
-    input.style.maxHeight = `${window.innerHeight*0.3}px`;
+elInput.addEventListener('input', e => {
+    // Set input height to scroll height
+    elInput.style.height = 'auto';
+    const lineHeight = 16 * 1.4;
+    elInput.style.height = `${clamp(elInput.scrollHeight, lineHeight*1, window.innerHeight*0.4)}px`;
+    // Disable send button accordingly
+    const value = elInput.value.trim();
+    if (!value) {
+        btnSend.disabled = true;
+        return;
+    }
+    if (!generationInProgress)
+        btnSend.disabled = false;
 });
-window.dispatchEvent(new Event('resize'));
+elInput.addEventListener('keydown', e => {
+    if (e.key == 'Enter' && e.ctrlKey) {
+        btnSend.click();
+    }
+});
+elInput.dispatchEvent(new Event('input'));
+
+btnSend.addEventListener('click', async() => {
+    if (btnSend.disabled) return;
+    const el = document.createElement('div');
+    const input = elInput.value.trim();
+    elInput.value = '';
+    elInput.dispatchEvent(new Event('input'));
+    const inputMsg = addMessage('user', 'You', markdownToHtml(input));
+    const outputMsg = addMessage('model', models[localStorageGet('model')].name, '');
+    const outputContent = outputMsg.querySelector('.content');
+    const response = await getModelResponse(input, (delta, response) => {
+        outputContent.innerHTML = markdownToHtml(response);
+    });
+});
+
+window.addEventListener('resize', () => {
+    elUi.classList.toggle('floating', window.innerWidth > 1200);
+    elInput.dispatchEvent(new Event('input'));
+});
+
+window.addEventListener('load', () => {
+    window.dispatchEvent(new Event('resize'));
+});
