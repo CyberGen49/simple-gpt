@@ -46,11 +46,11 @@ const createPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
     dialog.classList.add('dialog');
     dialog.innerHTML = /*html*/`
         <div class="content col gap-15">
-            <div class="title">
+            <div class="title flex-no-shrink">
                 <h4>${titleHTML}</h4>
             </div>
             <div class="body">${bodyHTML}</div>
-            <div class="actions row gap-10" style="flex-direction: row-reverse"></div>
+            <div class="actions row gap-10 flex-no-shrink" style="flex-direction: row-reverse"></div>
         </div>
     `;
     if (!actions) actions = [{
@@ -203,6 +203,11 @@ btnSettings.addEventListener('click', () => {
                 <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>.</small>
             </div>
             <div class="col">
+                <label>System prompt</label>
+                <textarea id="systemPrompt" rows="5" class="textbox auto" style="max-width: 100%; width: 500px"></textarea>
+                <small class="pad-top">The system prompt can be used to influence the model's behavior and is sent at the beginning of every interaction.</small>
+            </div>
+            <div class="col">
                 <label>Context amount</label>
                 <input type="number" id="contextCount" class="textbox" placeholder="1" style="width: 100px">
                 <small class="pad-top">This value determines how many previous interactions are included as context for new interactions. For example, if set to 1, new interactions will only use the previous user-model interaction as context.</small>
@@ -220,6 +225,7 @@ btnSettings.addEventListener('click', () => {
     const body = popup.querySelector('.body');
     const inputApiKey = body.querySelector('#apiKey');
     const btnKeyVisibility = body.querySelector('#keyVisibility');
+    const inputSystemPrompt = body.querySelector('#systemPrompt');
     const inputContextCount = body.querySelector('#contextCount');
     const btnChangeModel = body.querySelector('#settingsChangeModel');
     btnChangeModel.addEventListener('click', () => {
@@ -232,6 +238,10 @@ btnSettings.addEventListener('click', () => {
         inputApiKey.type = inputApiKey.type == 'password' ? 'text' : 'password';
     });
     inputApiKey.value = localStorageGet('apiKey');
+    inputSystemPrompt.addEventListener('input', () => {
+        localStorageSet('systemPrompt', inputSystemPrompt.value.trim() || 'You are a helpful assistant.');
+    });
+    inputSystemPrompt.value = localStorageGet('systemPrompt');
     inputContextCount.addEventListener('input', () => {
         localStorageSet('contextCount', parseInt(inputContextCount.value));
     });
@@ -270,6 +280,7 @@ elInput.addEventListener('input', e => {
 });
 elInput.addEventListener('keydown', e => {
     if (e.key == 'Enter' && !e.ctrlKey) {
+        e.preventDefault();
         btnSend.click();
     }
 });
@@ -287,6 +298,7 @@ btnSend.addEventListener('click', async() => {
     const response = await getModelResponse(input, (delta, response) => {
         outputContent.innerHTML = markdownToHtml(response);
     });
+    Prism.highlightAll();
 });
 
 window.addEventListener('resize', () => {

@@ -5,6 +5,7 @@
 * {
     box-sizing: border-box;
     min-width: 0px;
+    min-height: 0px;
     max-width: 100000px;
     max-height: 100000px;
 }
@@ -22,6 +23,14 @@ body {
     --fg0: hsl(240, 15%, 95%);
     --anchor: hsl(220, 80%, 70%);
     --anchor1: hsl(220, 80%, 80%);
+    --syntax-comment: #8b949e;
+    --syntax-constant: #79c0ff;
+    --syntax-entity: #d2a8ff;
+    --syntax-storage-modifier-import: #c9d1d9;
+    --syntax-entity-tag: #7ee787;
+    --syntax-keyword: #ff7b72;
+    --syntax-string: #a5d6ff;
+    --syntax-variable: #ffa657;
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     line-height: 1;
@@ -63,6 +72,7 @@ body {
 
 .message {
     padding: 10px 10px 10px 0px;
+    flex-shrink: 0;
 }
 .message .picture {
     width: 42px;
@@ -76,13 +86,13 @@ body {
 .message .picture::after {
     font-family: 'Material Symbols Rounded';
     font-size: 28px;
-    color: var(--bg1);
+    color: var(--fg1);
 }
 .message.user .picture {
-    background: skyblue;
+    background: hsl(280, 30%, 40%);
 }
 .message.model .picture {
-    background: greenyellow;
+    background: hsl(120, 30%, 40%);
 }
 .message.user .picture::after {
     content: 'person';
@@ -173,8 +183,14 @@ body {
 .dialog::backdrop {
     background: hsla(0, 0%, 0%, 0.4);
 }
+.dialog[open]::backdrop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-.dialog {
+.dialog[open] {
+    position: relative;
     border: none;
     background: var(--bg1);
     border-radius: 12px;
@@ -182,6 +198,16 @@ body {
     outline: none;
     width: 100%;
     max-width: 500px;
+    max-height: 100%;
+    overflow-y: hidden;
+    display: flex;
+}
+
+.dialog > .content > .body {
+    max-height: 100%;
+    overflow-y: auto;
+    margin-right: -12px;
+    padding-right: 12px;
 }
 
 .textbox {
@@ -198,6 +224,7 @@ body {
 }
 textarea.textbox {
     height: auto;
+    padding: 12px;
 }
 
 a {
@@ -274,6 +301,120 @@ small {
 }
 small.pad-top {
     padding-top: 0.4em;
+}
+
+hr {
+    margin: 10px 0px;
+    padding: 0;
+    border: none;
+    border-top: 1px solid var(--bg2);
+}
+
+code {
+    font-family: 'Cascadia Code', 'monospace';
+}
+code:not(pre code) {
+    padding: 2px 4px;
+    background: var(--bg0);
+    border-radius: 4px;
+    word-break: break-word;
+}
+pre {
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--bg0);
+    color: var(--fg1);
+}
+pre code {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+    line-height: 1.4;
+    font-size: 16px;
+}
+.cm-comment,
+.cm-meta,
+.cm-hr,
+code .token.comment,
+code .token.deleted,
+code .token.prolog,
+code .token.doctype,
+code .token.cdata {
+    color: var(--syntax-comment) !important
+}
+.cm-header,
+.cm-def,
+.cm-variable,
+.cm-variable-3,
+.cm-number,
+.cm-builtin,
+.cm-atom,
+.cm-qualifier,
+.cm-attribute,
+code .token.builtin,
+code .token.property,
+code .token.attr-name,
+code .token.boolean,
+code .token.number,
+code .token.constant {
+    color: var(--syntax-constant) !important
+}
+.cm-variable-2,
+.cm-type,
+code .token.color,
+code .token.variable {
+    color: var(--syntax-variable) !important
+}
+.cm-calle,
+code .token.function,
+code .token.symbol,
+code .token.entity {
+    color: var(--syntax-entity) !important
+}
+.cm-tag,
+code .token.class-name,
+code .token.selector,
+code .token.tag {
+    color: var(--syntax-entity-tag) !important
+}
+.cm-keyword,
+.cm-operator,
+code .token.important,
+code .token.keyword,
+code .token.operator,
+code .token.atrule,
+code .token.unit {
+    color: var(--syntax-keyword) !important
+}
+.cm-quote,
+.cm-string, .cm-string-2,
+.cm-link,
+code .token.string,
+code .token.char,
+code .token.regex,
+code .token.url,
+code .token.attr-value {
+    color: var(--syntax-string) !important
+}
+.cm-property,
+.cm-positive,
+.cm-negative,
+.cm-bracket,
+.cm-error,
+.cm-invalidchar,
+code .token.punctuation,
+code .token.inserted,
+code .token.interpolation-punctuation {
+    color: var(--f1) !important
+}
+code .token.bold {
+    font-weight: bold;
+}
+code .token.italic {
+    font-style: italic
+}
+code .token.namespace {
+    color: var(--f3)
 }
 
 ::-webkit-scrollbar {
