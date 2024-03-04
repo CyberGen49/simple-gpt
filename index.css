@@ -89,10 +89,10 @@ body {
     color: var(--fg1);
 }
 .message.user .picture {
-    background: hsl(280, 30%, 40%);
+    background: hsl(240, 10%, 40%);
 }
 .message.model .picture {
-    background: hsl(120, 30%, 40%);
+    background: hsl(var(--hue), 30%, 40%);
 }
 .message.user .picture::after {
     content: 'person';
@@ -103,6 +103,24 @@ body {
 .message .name {
     font-weight: bold;
     color: var(--fg2);
+}
+.message .content > .error {
+    display: flex;
+    align-items: center;    
+    gap: 10px;
+    padding: 10px;
+    background: hsl(340, 50%, 25%);
+    border-radius: 8px;
+}
+.message .content > .error::before {
+    font-family: 'Material Symbols Rounded';
+    font-size: 32px;
+    content: 'error';
+    color: hsl(340, 50%, 80%);
+}
+.message .content > .error p {
+    font-size: 15px;
+    line-height: 1.4;
 }
 
 #draftSep {
@@ -182,11 +200,14 @@ body {
 
 .dialog::backdrop {
     background: hsla(0, 0%, 0%, 0.4);
+    opacity: 0;
+    transition: 0.2s ease-in-out;
 }
-.dialog[open]::backdrop {
+.dialog.visible::backdrop {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
 }
 
 .dialog[open] {
@@ -201,6 +222,14 @@ body {
     max-height: 100%;
     overflow-y: hidden;
     display: flex;
+    opacity: 0;
+    scale: 0.9;
+    transition: 0.1s ease-in-out;
+}
+
+.dialog.visible {
+    opacity: 1;
+    scale: 1;
 }
 
 .dialog > .content > .body {
@@ -227,6 +256,22 @@ textarea.textbox {
     padding: 12px;
 }
 
+p, li, ul, ol {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+ul, ol {
+    margin-left: 30px;
+}
+p:not(:last-child),
+ul:not(:last-child),
+ol:not(:last-child),
+li:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+
 a {
     color: var(--anchor);
     text-decoration: none;
@@ -242,25 +287,16 @@ b {
     color: var(--fg0);
 }
 
-p, li, ul, ol {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    line-height: 1.6;
-}
-p:not(:last-child),
-ul:not(:last-child),
-ol:not(:last-child),
-li:not(:last-child) {
-    margin-bottom: 0.5em;
-}
-
 h1, h2, h3, h4, h5, h6 {
     margin: 0;
     padding: 0;
     font-weight: bold;
     line-height: 1.2;
     color: var(--fg0);
+}
+
+h1:not(:first-child), h2:not(:first-child), h3:not(:first-child), h4:not(:first-child), h5:not(:first-child), h6:not(:first-child) {
+    margin-top: 0.7em;
 }
 
 h1:not(:last-child), h2:not(:last-child), h3:not(:last-child), h4:not(:last-child), h5:not(:last-child), h6:not(:last-child) {
@@ -417,6 +453,11 @@ code .token.namespace {
     color: var(--f3)
 }
 
+::selection {
+    background: var(--bg4);
+    color: var(--fg0);
+}
+
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -441,6 +482,7 @@ code .token.namespace {
 }
 * {
     scrollbar-color: var(--bg4) transparent;
+    scrollbar-highlight-color: var(--fg4) transparent;
     scrollbar-width: thin;
 }
 

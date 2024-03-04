@@ -14,7 +14,8 @@ const models = {
         price: {
             input: 0.0005 / 1000,
             output: 0.0015 / 1000
-        }
+        },
+        hue: 190
     },
     'gpt-4-turbo-preview': {
         name: 'GPT-4 Turbo',
@@ -22,7 +23,8 @@ const models = {
         price: {
             input: 0.01 / 1000,
             output: 0.03 / 1000
-        }
+        },
+        hue: 130
     }
 };
 
@@ -41,7 +43,7 @@ const markdownToHtml = markdown => {
     return DOMPurify.sanitize(marked.parse(markdown));
 };
 
-const createPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
+const showPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
     const dialog = document.createElement('dialog');
     dialog.classList.add('dialog');
     dialog.innerHTML = /*html*/`
@@ -67,7 +69,19 @@ const createPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
         });
         dialog.querySelector('.actions').appendChild(btn);
     }
+    dialog.addEventListener('close', () => {
+        if (!dialog.classList.contains('visible')) return;
+        dialog.showModal();
+        dialog.classList.remove('visible');
+        setTimeout(() => {
+            dialog.remove();
+        }, 300);
+    });
     document.body.appendChild(dialog);
+    dialog.showModal();
+    setTimeout(() => {
+        dialog.classList.add('visible');
+    }, 10);
     return dialog;
 }
 
@@ -77,6 +91,20 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
         const key = localStorageGet('apiKey');
+        const contextCount = parseInt(localStorageGet('contextCount') || 0);
+        const storedMessages = JSON.parse(localStorageGet('messages')).reverse() || [];
+        const context = [{
+            role: 'system',
+            content: systemPrompt
+        }];
+        for (let i = 0; i < contextCount; i++) {
+            const msg = storedMessages[i];
+            if (!msg) break;
+            context.push({
+                role: msg.role == 'model' ? 'assistant' : 'user',
+                content: msg.content
+            });
+        }
         let isFinished = false;
         let response = '';
         let lastResponseText = '';
@@ -84,13 +112,7 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         const res = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: model,
             stream: true,
-            messages: [{
-                role: 'system',
-                content: systemPrompt
-            }, {
-                role: 'user',
-                content: prompt
-            }]
+            messages: [ ...context, { role: 'user', content: prompt }]
         }, {
             headers: {
                 'Authorization': `Bearer ${key}`,
@@ -106,7 +128,10 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
                         isFinished = true;
                         break;
                     }
-                    const data = JSON.parse(json);
+                    let data;
+                    try {
+                        data = JSON.parse(json);
+                    } catch (error) {}
                     const delta = data.choices[0].delta.content;
                     if (!delta) continue;
                     response += delta;
@@ -116,26 +141,22 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         });
         generationInProgress = false;
         elInput.dispatchEvent(new Event('input'));
-        return response;
+        return { success: true, response };
     } catch (error) {
         console.log(error);
+        const message = error.response?.data?.error?.message || error.message || error.toString();
         generationInProgress = false;
         elInput.dispatchEvent(new Event('input'));
-        return false;
+        return { success: false, error: message };
     }
 };
 
 const setModel = model => {
     localStorageSet('model', model);
+    let modelData = models[model];
+    if (!modelData) modelData = Object.values(models)[0];
     btnModelName.innerText = models[model].name;
 };
-
-if (!localStorageGet('model'))
-    setModel('gpt-4-turbo-preview');
-if (!localStorageGet('systemPrompt'))
-    localStorageSet('systemPrompt', 'You are a helpful assistant.');
-
-setModel(localStorageGet('model'));
 
 const addMessage = (role, name, content) => {
     const el = document.createElement('div');
@@ -148,20 +169,12 @@ const addMessage = (role, name, content) => {
         </div>
     `;
     elInteractions.insertAdjacentElement('afterbegin', el);
-    elInteractions.scrollTop = elInteractions.scrollHeight;
+    elInteractions.scrollTop = 0;
     return el;
 }
 
-let samplePrompts = [];
-(async() => {
-    const res = await axios.get('/prompts.json');
-    samplePrompts = res.data;
-    input.placeholder = getRandomElement(samplePrompts);
-    elInput.dispatchEvent(new Event('input'));
-})();
-
 btnModel.addEventListener('click', () => {
-    const popup = createPopup('Change model');
+    const popup = showPopup('Change model');
     const body = popup.querySelector('.body');
     body.classList = 'col gap-10';
     for (const modelId in models) {
@@ -192,7 +205,7 @@ btnModel.addEventListener('click', () => {
 });
 
 btnSettings.addEventListener('click', () => {
-    const popup = createPopup('Settings', /*html*/`
+    const popup = showPopup('Settings', /*html*/`
         <div class="col gap-15">
             <div class="col">
                 <label>OpenAI API key</label>
@@ -208,11 +221,11 @@ btnSettings.addEventListener('click', () => {
                 <small class="pad-top">The system prompt can be used to influence the model's behavior and is sent at the beginning of every interaction.</small>
             </div>
             <div class="col">
-                <label>Context amount</label>
-                <input type="number" id="contextCount" class="textbox" placeholder="1" style="width: 100px">
-                <small class="pad-top">This value determines how many previous interactions are included as context for new interactions. For example, if set to 1, new interactions will only use the previous user-model interaction as context.</small>
-                <small class="pad-top">Higher values will make the bot remember more, but will lead to higher costs and longer loading times. This number will always be capped at the model's max context window in tokens.</small>
-                <small class="pad-top">Set to 0 to send no context with new interactions.</small>
+                <label>Context messages</label>
+                <input type="number" id="contextCount" class="textbox" placeholder="2" style="width: 100px">
+                <small class="pad-top">This value determines how many previous messages are included as context for new interactions. For example, if set to 2, new interactions will include the previous 2 messages.</small>
+                <small class="pad-top">Higher numbers will allow the model to remember further back, but will result in greater costs and longer loading times.</small>
+                <small class="pad-top">Set to 0 to not include any context with new interactions.</small>
             </div>
             <div class="col">
                 <label>Active model</label>
@@ -245,7 +258,7 @@ btnSettings.addEventListener('click', () => {
     inputContextCount.addEventListener('input', () => {
         localStorageSet('contextCount', parseInt(inputContextCount.value));
     });
-    inputContextCount.value = localStorageGet('contextCount') || 1;
+    inputContextCount.value = localStorageGet('contextCount');
     popup.showModal();
 });
 
@@ -288,17 +301,45 @@ elInput.dispatchEvent(new Event('input'));
 
 btnSend.addEventListener('click', async() => {
     if (btnSend.disabled) return;
-    const el = document.createElement('div');
     const input = elInput.value.trim();
     elInput.value = '';
     elInput.dispatchEvent(new Event('input'));
+    const messages = JSON.parse(localStorageGet('messages')) || [];
     const inputMsg = addMessage('user', 'You', markdownToHtml(input));
-    const outputMsg = addMessage('model', models[localStorageGet('model')].name, '');
+    const model = models[localStorageGet('model')];
+    const outputMsg = addMessage('model', model.name, '');
+    outputMsg.style.setProperty('--hue', model.hue);
     const outputContent = outputMsg.querySelector('.content');
     const response = await getModelResponse(input, (delta, response) => {
+        const isAtBottom = elInteractions.scrollTop > -10;
         outputContent.innerHTML = markdownToHtml(response);
+        Prism.highlightAllUnder(outputContent);
+        if (isAtBottom) {
+            elInteractions.scrollTop = 0;
+        }
     });
-    Prism.highlightAll();
+    if (!response.success) {
+        outputContent.innerHTML = /*html*/`
+            <div class="error">
+                ${markdownToHtml(response.error)}
+            </div>
+        `;
+    } else {
+        messages.push({
+            role: 'user',
+            name: 'You',
+            content: input
+        }, {
+            role: 'model',
+            model: model,
+            name: model.name,
+            content: response.response
+        });
+        while (JSON.stringify(messages).length > 1000000) {
+            messages.shift();
+        }
+        localStorageSet('messages', JSON.stringify(messages));
+    }
 });
 
 window.addEventListener('resize', () => {
@@ -306,6 +347,37 @@ window.addEventListener('resize', () => {
     elInput.dispatchEvent(new Event('input'));
 });
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async() => {
     window.dispatchEvent(new Event('resize'));
+
+    if (!localStorageGet('model'))
+        localStorageSet('model', 'gpt-4-turbo-preview');
+    if (!localStorageGet('systemPrompt'))
+        localStorageSet('systemPrompt', 'You are a helpful assistant.');
+    if (!localStorageGet('contextCount'))
+        localStorageSet('contextCount', 0);
+    if (!localStorageGet('apiKey'))
+        btnSettings.click();
+
+    setModel(localStorageGet('model'));
+
+    const messages = JSON.parse(localStorageGet('messages')) || [];
+    for (const message of messages) {
+        const el = addMessage(message.role, message.name, markdownToHtml(message.content));
+        el.style.setProperty('--hue', message.model?.hue || 120);
+    }
+    Prism.highlightAll();
+    
+    let samplePrompts = [];
+    const res = await axios.get('/prompts.json');
+    samplePrompts = res.data;
+    input.placeholder = getRandomElement(samplePrompts);
+    elInput.dispatchEvent(new Event('input'));
+});
+
+window.addEventListener('beforeunload', e => {
+    if (generationInProgress) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
 });
