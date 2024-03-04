@@ -351,6 +351,11 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', async() => {
     window.dispatchEvent(new Event('resize'));
 
+    const appVersion = 'v2';
+    if (localStorageGet('simplegpt-version') != appVersion) {
+        window.localStorage.clear();
+        localStorageSet('simplegpt-version', appVersion);
+    }
     if (!localStorageGet('model'))
         localStorageSet('model', 'gpt-4-turbo-preview');
     if (!localStorageGet('systemPrompt'))
