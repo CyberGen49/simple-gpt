@@ -1,6 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=Nunito:wght@400;500;600;700&family=Onest:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,200,0,0');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0..1,0');
 
 * {
     box-sizing: border-box;
@@ -11,7 +11,7 @@
 }
 
 body {
-    --bg0: hsl(240, 15%, 10%);
+    --bg0: hsl(240, 15%, 12%);
     --bg1: hsl(240, 15%, 15%);
     --bg2: hsl(240, 15%, 20%);
     --bg3: hsl(240, 15%, 30%);
@@ -68,6 +68,12 @@ body {
     gap: 10px 20px;
 }
 
+@media (max-height: 500px) {
+    #title {
+        display: none;
+    }
+}
+
 #interactions {
     flex-direction: column-reverse;
     overflow-y: auto;
@@ -75,8 +81,10 @@ body {
 }
 
 .message {
-    padding: 10px 10px 10px 0px;
+    position: relative;
+    padding: 10px;
     flex-shrink: 0;
+    border-radius: 12px;
 }
 .message .picture {
     width: 42px;
@@ -89,14 +97,15 @@ body {
 }
 .message .picture::after {
     font-family: 'Material Symbols Rounded';
+    font-variation-settings: 'FILL' 1;
     font-size: 28px;
     color: var(--fg1);
 }
 .message.user .picture {
-    background: hsl(240, 10%, 40%);
+    background: var(--bg3);
 }
 .message.model .picture {
-    background: hsl(var(--hue), 30%, 40%);
+    background: hsl(var(--hue), 40%, 40%);
 }
 .message.user .picture::after {
     content: 'person';
@@ -125,6 +134,24 @@ body {
 .message .content > .error p {
     font-size: 15px;
     line-height: 1.4;
+}
+.message .menu {
+    position: absolute;
+    top: -5px;
+    right: 5px;
+    background: var(--bg2);
+    padding: 4px;
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px 0px hsla(0, 0%, 0%, 0.2);
+    display: none;
+    opacity: 0.5;
+    transition: 0.2s ease-in-out;
+}
+.message:hover .menu {
+    display: flex;
+}
+.message .menu:hover {
+    opacity: 1;
 }
 
 #draftSep {
@@ -190,6 +217,16 @@ body {
 .btn.danger:active {
     background: var(--danger4);
 }
+.btn.alt {
+    background: var(--fg1);
+    color: var(--bg1);
+}
+.btn.alt:hover, .btn.alt:focus-visible {
+    background: var(--fg2);
+}
+.btn.alt:active {
+    background: var(--fg3);
+}
 .btn:disabled {
     background: var(--bg0);
     color: var(--fg4);
@@ -197,24 +234,33 @@ body {
 }
 .btn .icon {
     font-size: 24px;
-    font-family: 'Material Symbols Rounded'
+    font-family: 'Material Symbols Rounded';
 }
 .btn.icon {
     padding: 0px;
     width: 40px;
     font-size: 28px;
-    font-family: 'Material Symbols Rounded'
+    font-family: 'Material Symbols Rounded';
+}
+.btn.icon.filled, .btn .icon.filled {
+    font-variation-settings: 'FILL' 1;
+}
+.btn.small {
+    height: 36px;
+    padding: 0px 10px;
+    font-size: 14px;
+}
+.btn.small .icon {
+    font-size: 20px;
+}
+.btn.small.icon {
+    width: 36px;
+    font-size: 24px;
 }
 .btn.no-shadow:hover,
 .btn.no-shadow:focus-visible,
 .btn.no-shadow:active {
     box-shadow: none;
-}
-
-@media (max-width: 450px) {
-    #popOut {
-        display: none;
-    }
 }
 
 .dialog::backdrop {
@@ -280,11 +326,66 @@ textarea.textbox {
     padding: 12px;
 }
 
+progress {
+    --bg: var(--bg2);
+    --fill: var(--fg3);
+    --height: 3px;
+    --borderRadius: 0px;
+    appearance: none;
+    position: relative;
+    background: var(--bg);
+    width: 100%;
+    height: var(--height);
+    border-radius: var(--borderRadius);
+    overflow: hidden;
+    outline: none;
+    border: none;
+}
+progress:not([value]):before,
+progress:not([value]):after {
+    content: "";
+    background-color: var(--fill);
+    border-radius: 100px;
+    height: var(--height);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30%;
+    animation: move 1.5s linear infinite;
+    transform: translateX(-100%);
+}
+progress:not([value]):after {
+    animation-delay: 0.75s;
+}
+@keyframes move {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(350%);
+    }
+}
+progress::-webkit-progress-bar {
+    background: var(--bg);
+    border-radius: var(--borderRadius);
+}
+progress::-webkit-progress-value {
+    background: var(--fill);
+    border-radius: var(--borderRadius);
+    transition: 0.1s ease-in-out;
+}
+progress::-moz-progress-bar {
+    background: var(--fill);
+    border-radius: var(--borderRadius);
+    transition: 0.1s ease-in-out;
+}
+
 p, li, ul, ol {
     margin: 0;
     padding: 0;
     font-size: 16px;
     line-height: 1.6;
+    word-break: break-word;
 }
 ul, ol {
     margin-left: 30px;
@@ -384,6 +485,13 @@ pre {
     border-radius: 12px;
     background: var(--bg0);
     color: var(--fg1);
+    margin: 0px;
+}
+pre:not(:first-child) {
+    margin-top: 0.8em;
+}
+pre:not(:last-child) {
+    margin-bottom: 0.8em;
 }
 pre code {
     display: block;

@@ -5,8 +5,8 @@ const btnSend = document.querySelector('#send');
 const btnModel = document.querySelector('#model');
 const btnModelName = document.querySelector('#modelName');
 const btnSettings = document.querySelector('#settings');
-const btnPopOut = document.querySelector('#popOut');
 const elSettingsLink = document.querySelector('#settingsLink');
+const progress = document.querySelector('progress');
 
 const models = {
     'gpt-3.5-turbo': {
@@ -16,7 +16,7 @@ const models = {
             input: 0.0005 / 1000,
             output: 0.0015 / 1000
         },
-        hue: 80
+        hue: 100
     },
     'gpt-4-turbo-preview': {
         name: 'GPT-4 Turbo',
@@ -25,7 +25,7 @@ const models = {
             input: 0.01 / 1000,
             output: 0.03 / 1000
         },
-        hue: 140
+        hue: 165
     }
 };
 
@@ -111,6 +111,7 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         let response = '';
         let lastResponseText = '';
         generationInProgress = true;
+        progress.style.display = '';
         const res = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: model,
             stream: true,
@@ -143,12 +144,14 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         });
         generationInProgress = false;
         elInput.dispatchEvent(new Event('input'));
+        progress.style.display = 'none';
         return { success: true, response };
     } catch (error) {
         console.log(error);
         const message = error.response?.data?.error?.message || error.message || error.toString();
         generationInProgress = false;
         elInput.dispatchEvent(new Event('input'));
+        progress.style.display = 'none';
         return { success: false, error: message };
     }
 };
@@ -169,7 +172,24 @@ const addMessage = (role, name, content) => {
             <div class="name">${name}</div>
             <div class="content">${content}</div>
         </div>
+        <div class="menu row gap-5">
+            <button class="copyText btn no-shadow small icon" title="Copy message text">
+                content_copy
+            </button>
+            <button class="copyHtml btn no-shadow small icon" title="Copy message HTML">
+                code
+            </button>
+            <button class="delete btn no-shadow small icon danger" title="Delete message">
+                delete
+            </button>
+        </div>
     `;
+    const btnCopyText = el.querySelector('.copyText');
+    const btnCopyHtml = el.querySelector('.copyHtml');
+    const btnDelete = el.querySelector('.delete');
+    btnCopyHtml.addEventListener('click', () => {
+        navigator.clipboard.writeText(el.querySelector('.content').innerHTML);
+    });
     elInteractions.insertAdjacentElement('afterbegin', el);
     elInteractions.scrollTop = 0;
     return el;
@@ -280,21 +300,6 @@ btnSettings.addEventListener('click', () => {
 
 elSettingsLink.addEventListener('click', () => btnSettings.click());
 
-btnPopOut.addEventListener('click', () => {
-    // Open the page in a 500x800 popup
-    // Center the popup on the screen
-    const width = 500;
-    const height = 800;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
-    window.open(window.location.href, 'simplegpt', `width=${width},height=${height},left=${left},top=${top}`).focus();
-});
-
-// Hide popup button if in popup
-if (window.opener) {
-    btnPopOut.style.display = 'none';
-}
-
 elInput.addEventListener('input', e => {
     // Set input height to scroll height
     elInput.style.height = 'auto';
@@ -319,16 +324,36 @@ elInput.dispatchEvent(new Event('input'));
 
 btnSend.addEventListener('click', async() => {
     if (btnSend.disabled) return;
+    // Get input text and clear draft bar
     const input = elInput.value.trim();
     elInput.value = '';
     elInput.dispatchEvent(new Event('input'));
     elInput.focus();
+    // Get saved messages
     const messages = JSON.parse(localStorageGet('messages')) || [];
+    // Create user message entry
     const inputMsg = addMessage('user', 'You', markdownToHtml(input));
+    messages.push({
+        role: 'user',
+        name: 'You',
+        content: input
+    });
+    inputMsg.dataset.index = messages.length - 1;
+    inputMsg.querySelector('.copyText').addEventListener('click', () => {
+        navigator.clipboard.writeText(input);
+    });
+    inputMsg.querySelector('.delete').addEventListener('click', () => {
+        inputMsg.remove();
+        messages.splice(parseInt(inputMsg.dataset.index), 1);
+        localStorageSet('messages', JSON.stringify(messages));
+    });
+    // Create model message entry
     const model = models[localStorageGet('model')];
-    const outputMsg = addMessage('model', model.name, '');
-    outputMsg.style.setProperty('--hue', model.hue);
-    const outputContent = outputMsg.querySelector('.content');
+    const tmpMsg = addMessage('model', model.name, '');
+    tmpMsg.style.setProperty('--hue', model.hue);
+    tmpMsg.querySelector('.menu').style.display = 'none';
+    // Update model message content as it generates
+    const outputContent = tmpMsg.querySelector('.content');
     const response = await getModelResponse(input, (delta, response) => {
         const isAtBottom = elInteractions.scrollTop > -10;
         outputContent.innerHTML = markdownToHtml(response);
@@ -338,17 +363,15 @@ btnSend.addEventListener('click', async() => {
         }
     });
     if (!response.success) {
+        // Show an error message
         outputContent.innerHTML = /*html*/`
             <div class="error">
                 ${markdownToHtml(response.error)}
             </div>
         `;
     } else {
+        // Save response
         messages.push({
-            role: 'user',
-            name: 'You',
-            content: input
-        }, {
             role: 'model',
             model: model,
             name: model.name,
@@ -358,6 +381,20 @@ btnSend.addEventListener('click', async() => {
             messages.shift();
         }
         localStorageSet('messages', JSON.stringify(messages));
+        // Replace displayed message
+        tmpMsg.remove();
+        const msg = addMessage('model', model.name, markdownToHtml(response.response));
+        msg.dataset.index = messages.length - 1;
+        msg.style.setProperty('--hue', model.hue);
+        msg.querySelector('.copyText').addEventListener('click', () => {
+            navigator.clipboard.writeText(response.response);
+        });
+        msg.querySelector('.delete').addEventListener('click', () => {
+            msg.remove();
+            messages.splice(parseInt(msg.dataset.index), 1);
+            localStorageSet('messages', JSON.stringify(messages));
+        });
+        Prism.highlightAllUnder(msg);
     }
 });
 
@@ -383,9 +420,19 @@ window.addEventListener('load', async() => {
     setModel(localStorageGet('model'));
 
     const messages = JSON.parse(localStorageGet('messages')) || [];
-    for (const message of messages) {
+    for (let i = 0; i < messages.length; i++) {
+        const message = messages[i];
         const el = addMessage(message.role, message.name, markdownToHtml(message.content));
+        el.dataset.index = i;
         el.style.setProperty('--hue', message.model?.hue || 120);
+        el.querySelector('.copyText').addEventListener('click', () => {
+            navigator.clipboard.writeText(message.content);
+        });
+        el.querySelector('.delete').addEventListener('click', () => {
+            el.remove();
+            messages.splice(parseInt(el.dataset.index), 1);
+            localStorageSet('messages', JSON.stringify(messages));
+        });
     }
     Prism.highlightAll();
     
