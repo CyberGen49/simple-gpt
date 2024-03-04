@@ -92,7 +92,7 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
         const systemPrompt = localStorageGet('systemPrompt');
         const key = localStorageGet('apiKey');
         const contextCount = parseInt(localStorageGet('contextCount') || 0);
-        const storedMessages = JSON.parse(localStorageGet('messages')).reverse() || [];
+        const storedMessages = (JSON.parse(localStorageGet('messages')) || []).reverse();
         const context = [{
             role: 'system',
             content: systemPrompt
