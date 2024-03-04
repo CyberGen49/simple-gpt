@@ -1,10 +1,12 @@
 # simple-gpt
-A simple webapp that allows you to interact with OpenAI's large language models without any context. Just ask it something and get a response.
+A simple webapp that allows you to interact with OpenAI's large language models.
 
 Features:
 - Entirely clientside
-- Interactions are saved for later viewing
+- Messages are saved for later viewing
 - Customizable system prompt
+- Customizable context message count
 - Markdown support with syntax-highlighted code blocks
+- Easily copy messages as text (Markdown) or rendered HTML
 
-Use it at [gpt.simplecyber.org](https://gpt.simplecyber.org)
+Check it out at [gpt.simplecyber.org](https://gpt.simplecyber.org)
