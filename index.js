@@ -47,7 +47,7 @@ const showPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
     const dialog = document.createElement('dialog');
     dialog.classList.add('dialog');
     dialog.innerHTML = /*html*/`
-        <div class="content col gap-15">
+        <div class="content col gap-5">
             <div class="title flex-no-shrink">
                 <h4>${titleHTML}</h4>
             </div>
@@ -176,7 +176,8 @@ const addMessage = (role, name, content) => {
 btnModel.addEventListener('click', () => {
     const popup = showPopup('Change model');
     const body = popup.querySelector('.body');
-    body.classList = 'col gap-10';
+    const buttonCont = document.createElement('div');
+    buttonCont.classList = 'col gap-10';
     for (const modelId in models) {
         const model = models[modelId];
         const btn = document.createElement('button');
@@ -199,8 +200,9 @@ btnModel.addEventListener('click', () => {
             setModel(modelId);
             popup.close();
         });
-        body.appendChild(btn);
+        buttonCont.appendChild(btn);
     }
+    body.appendChild(buttonCont);
     popup.showModal();
 });
 
@@ -343,7 +345,6 @@ btnSend.addEventListener('click', async() => {
 });
 
 window.addEventListener('resize', () => {
-    elUi.classList.toggle('floating', window.innerWidth > 1200);
     elInput.dispatchEvent(new Event('input'));
 });
 
