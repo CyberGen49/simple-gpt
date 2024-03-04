@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>SimpleGPT</title>
     <link rel="icon" href="/icon.png">
     <meta property="og:site_name" content="SimpleGPT">
     <meta property="og:title" content="SimpleGPT">
     <meta property="og:description" content="A simple webapp that allows you to interact with OpenAI's large language models using your own API key.">
     <meta name="theme-color" content="#21212c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="/index.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
@@ -36,7 +38,17 @@
                     <button id="popOut" class="btn icon" title="Open as popup...">open_in_new</button>
                 </div>
             </div>
-            <div id="interactions" class="col flex-grow"></div>
+            <div id="interactions" class="col flex-grow">
+                <div class="row align-center justify-center flex-grow flex-no-shrink">
+                    <div class="text-center" style="max-width: 500px; color: var(--fg3); padding: 50px 0px;">
+                        <h2 style="color: var(--fg3)">SimpleGPT</h2>
+                        <p>Interact with OpenAI's language models with ease!</p>
+                        <p>Start by setting your OpenAI API key in <a id="settingsLink">Settings</a>.</p>
+                        <p>Messages you exchange with the AI here are only sent between your browser and OpenAI. Your message history and settings are stored locally in your browser.</p>
+                        <p>Check out <a href="https://github.com/CyberGen49/simple-gpt">the project's GitHub repo</a> to learn more.</p>
+                    </div>
+                </div>
+            </div>
             <div id="draftSep" class="flex-no-shrink"></div>
             <div id="draft" class="row gap-5 align-center flex-no-shrink">
                 <textarea id="input" class="flex-grow" rows="1"></textarea>

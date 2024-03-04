@@ -23,6 +23,11 @@ body {
     --fg0: hsl(240, 15%, 95%);
     --anchor: hsl(220, 80%, 70%);
     --anchor1: hsl(220, 80%, 80%);
+    --danger0: hsl(340, 50%, 18%);
+    --danger1: hsl(340, 50%, 25%);
+    --danger2: hsl(340, 50%, 32%);
+    --danger3: hsl(340, 50%, 40%);
+    --danger4: hsl(340, 50%, 50%);
     --syntax-comment: #8b949e;
     --syntax-constant: #79c0ff;
     --syntax-entity: #d2a8ff;
@@ -108,7 +113,7 @@ body {
     align-items: center;    
     gap: 10px;
     padding: 10px;
-    background: hsl(340, 50%, 25%);
+    background: var(--danger1);
     border-radius: 8px;
 }
 .message .content > .error::before {
@@ -175,6 +180,15 @@ body {
 .btn:active {
     background: var(--fg4);
     box-shadow: 0px 0px 8px 0px hsla(0, 0%, 0%, 0.2);
+}
+.btn.danger {
+    background: var(--danger2);
+}
+.btn.danger:hover, .btn.danger:focus-visible {
+    background: var(--danger3);
+}
+.btn.danger:active {
+    background: var(--danger4);
 }
 .btn:disabled {
     background: var(--bg0);

@@ -6,6 +6,7 @@ const btnModel = document.querySelector('#model');
 const btnModelName = document.querySelector('#modelName');
 const btnSettings = document.querySelector('#settings');
 const btnPopOut = document.querySelector('#popOut');
+const elSettingsLink = document.querySelector('#settingsLink');
 
 const models = {
     'gpt-3.5-turbo': {
@@ -15,7 +16,7 @@ const models = {
             input: 0.0005 / 1000,
             output: 0.0015 / 1000
         },
-        hue: 190
+        hue: 80
     },
     'gpt-4-turbo-preview': {
         name: 'GPT-4 Turbo',
@@ -24,7 +25,7 @@ const models = {
             input: 0.01 / 1000,
             output: 0.03 / 1000
         },
-        hue: 130
+        hue: 140
     }
 };
 
@@ -90,7 +91,8 @@ const getModelResponse = async(prompt, streamCb = () => {}) => {
     try {
         const model = localStorageGet('model');
         const systemPrompt = localStorageGet('systemPrompt');
-        const key = localStorageGet('apiKey');
+        const key = localStorageGet('apiKey') || '';
+        if (!key.trim()) throw new Error(`Missing API key! Get or generate yours [here](https://platform.openai.com/account/api-keys), then apply it from the Settings button in the top right.`);
         const contextCount = parseInt(localStorageGet('contextCount') || 0);
         const storedMessages = (JSON.parse(localStorageGet('messages')) || []).reverse();
         const context = [{
@@ -218,6 +220,12 @@ btnSettings.addEventListener('click', () => {
                 <small class="pad-top">Get or generate your API key <a href="https://platform.openai.com/account/api-keys">here</a>.</small>
             </div>
             <div class="col">
+                <label>Active model</label>
+                <div>
+                    <button id="settingsChangeModel" class="btn">Change model...</button>
+                </div>
+            </div>
+            <div class="col">
                 <label>System prompt</label>
                 <textarea id="systemPrompt" rows="5" class="textbox auto" style="max-width: 100%; width: 500px"></textarea>
                 <small class="pad-top">The system prompt can be used to influence the model's behavior and is sent at the beginning of every interaction.</small>
@@ -230,10 +238,11 @@ btnSettings.addEventListener('click', () => {
                 <small class="pad-top">Set to 0 to not include any context with new interactions.</small>
             </div>
             <div class="col">
-                <label>Active model</label>
+                <label>Clear local storage</label>
                 <div>
-                    <button id="settingsChangeModel" class="btn">Change model...</button>
+                    <button id="wipeStorage" class="btn danger">Wipe</button>
                 </div>
+                <small class="pad-top">Clear all locally stored data for this site, including message history and settings.</small>
             </div>
         </div>
     `);
@@ -243,6 +252,7 @@ btnSettings.addEventListener('click', () => {
     const inputSystemPrompt = body.querySelector('#systemPrompt');
     const inputContextCount = body.querySelector('#contextCount');
     const btnChangeModel = body.querySelector('#settingsChangeModel');
+    const btnWipe = body.querySelector('#wipeStorage');
     btnChangeModel.addEventListener('click', () => {
         btnModel.click();
     });
@@ -261,8 +271,14 @@ btnSettings.addEventListener('click', () => {
         localStorageSet('contextCount', parseInt(inputContextCount.value));
     });
     inputContextCount.value = localStorageGet('contextCount');
+    btnWipe.addEventListener('click', () => {
+        window.localStorage.clear();
+        window.location.reload();
+    });
     popup.showModal();
 });
+
+elSettingsLink.addEventListener('click', () => btnSettings.click());
 
 btnPopOut.addEventListener('click', () => {
     // Open the page in a 500x800 popup
@@ -306,6 +322,7 @@ btnSend.addEventListener('click', async() => {
     const input = elInput.value.trim();
     elInput.value = '';
     elInput.dispatchEvent(new Event('input'));
+    elInput.focus();
     const messages = JSON.parse(localStorageGet('messages')) || [];
     const inputMsg = addMessage('user', 'You', markdownToHtml(input));
     const model = models[localStorageGet('model')];
@@ -362,8 +379,6 @@ window.addEventListener('load', async() => {
         localStorageSet('systemPrompt', 'You are a helpful assistant.');
     if (!localStorageGet('contextCount'))
         localStorageSet('contextCount', 0);
-    if (!localStorageGet('apiKey'))
-        btnSettings.click();
 
     setModel(localStorageGet('model'));
 
