@@ -303,8 +303,8 @@ elSettingsLink.addEventListener('click', () => btnSettings.click());
 elInput.addEventListener('input', e => {
     // Set input height to scroll height
     elInput.style.height = 'auto';
-    const lineHeight = 16 * 1.4;
-    elInput.style.height = `${clamp(elInput.scrollHeight, lineHeight*1, window.innerHeight*0.4)}px`;
+    const vertPad = 12;
+    elInput.style.height = `${clamp(elInput.scrollHeight+2, 50, window.innerHeight*0.4)}px`;
     // Disable send button accordingly
     const value = elInput.value.trim();
     if (!value) {
