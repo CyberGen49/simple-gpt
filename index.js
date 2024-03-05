@@ -303,8 +303,8 @@ elSettingsLink.addEventListener('click', () => btnSettings.click());
 elInput.addEventListener('input', e => {
     // Set input height to scroll height
     elInput.style.height = 'auto';
-    const vertPad = 12;
-    elInput.style.height = `${clamp(elInput.scrollHeight+2, 50, window.innerHeight*0.4)}px`;
+    const lineHeight = 16 * 1.4;
+    elInput.style.height = `${clamp(elInput.scrollHeight+2, lineHeight, window.innerHeight*0.4)}px`;
     // Disable send button accordingly
     const value = elInput.value.trim();
     if (!value) {
@@ -322,13 +322,22 @@ elInput.addEventListener('keydown', e => {
 });
 elInput.dispatchEvent(new Event('input'));
 
+let samplePrompts = [];
+(async() => {
+    const res = await axios.get('/prompts.json');
+    samplePrompts = res.data;
+    input.placeholder = getRandomElement(samplePrompts);
+    elInput.dispatchEvent(new Event('input'));
+})();
+
 btnSend.addEventListener('click', async() => {
     if (btnSend.disabled) return;
     // Get input text and clear draft bar
     const input = elInput.value.trim();
+    input.placeholder = getRandomElement(samplePrompts);
     elInput.value = '';
-    elInput.dispatchEvent(new Event('input'));
     elInput.focus();
+    elInput.dispatchEvent(new Event('input'));
     // Get saved messages
     const messages = JSON.parse(localStorageGet('messages')) || [];
     // Create user message entry
@@ -435,12 +444,6 @@ window.addEventListener('load', async() => {
         });
     }
     Prism.highlightAll();
-    
-    let samplePrompts = [];
-    const res = await axios.get('/prompts.json');
-    samplePrompts = res.data;
-    input.placeholder = getRandomElement(samplePrompts);
-    elInput.dispatchEvent(new Event('input'));
 });
 
 window.addEventListener('beforeunload', e => {

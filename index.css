@@ -175,7 +175,7 @@ body {
 }
 #input {
     width: 100%;
-    padding: 8px 4px 9px 12px;
+    padding: 12px 4px 10px 12px;
     background: none;
     border: none;
     outline: none;
@@ -184,6 +184,7 @@ body {
     font-size: inherit;
     line-height: 1.4;
     color: inherit;
+    align-self: center;
 }
 #send {
     margin: 12px;
@@ -496,7 +497,7 @@ code:not(pre code) {
     word-break: break-word;
 }
 pre {
-    padding: 12px;
+    padding: 8px;
     border-radius: 12px;
     background: var(--bg0);
     color: var(--fg1);
@@ -510,6 +511,7 @@ pre:not(:last-child) {
 }
 pre code {
     display: block;
+    padding: 4px;
     max-width: 100%;
     overflow: auto;
     line-height: 1.4;
