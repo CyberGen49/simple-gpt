@@ -236,7 +236,9 @@ body {
 .btn.alt:active {
     background: var(--fg3);
 }
-.btn:disabled {
+.btn:disabled,
+.btn.danger:disabled,
+.btn.alt:disabled {
     background: var(--bg0);
     color: var(--fg4);
     cursor: not-allowed;
