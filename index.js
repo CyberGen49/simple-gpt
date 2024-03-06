@@ -387,7 +387,7 @@ btnSend.addEventListener('click', async() => {
             content: response.response
         });
         while (messages.length > 128) {
-            messages.shift();
+            console.log(`Deleting old saved message:`, messages.shift());
         }
         localStorageSet('messages', JSON.stringify(messages));
         // Replace displayed message
