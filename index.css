@@ -115,6 +115,7 @@ body {
 }
 .message.model .picture {
     background: hsl(var(--hue), 40%, 40%);
+    color: white;
 }
 .message.user .picture::after {
     content: 'person';
