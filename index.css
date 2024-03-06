@@ -340,6 +340,7 @@ body {
 textarea.textbox {
     height: auto;
     padding: 12px;
+    resize: vertical;
 }
 
 progress {
