@@ -386,7 +386,7 @@ btnSend.addEventListener('click', async() => {
             name: model.name,
             content: response.response
         });
-        while (JSON.stringify(messages).length > 1000000) {
+        while (messages.length > 128) {
             messages.shift();
         }
         localStorageSet('messages', JSON.stringify(messages));
