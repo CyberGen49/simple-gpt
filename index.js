@@ -188,7 +188,7 @@ const addMessage = (role, name, content) => {
     const btnCopyHtml = el.querySelector('.copyHtml');
     const btnDelete = el.querySelector('.delete');
     btnCopyHtml.addEventListener('click', () => {
-        navigator.clipboard.writeText(el.querySelector('.content').innerHTML);
+        navigator.clipboard.write(el.querySelector('.content').innerHTML, 'text/html');
     });
     elInteractions.insertAdjacentElement('afterbegin', el);
     elInteractions.scrollTop = 0;
