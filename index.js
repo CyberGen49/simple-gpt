@@ -243,7 +243,7 @@ btnModel.addEventListener('click', () => {
         const model = models[modelId];
         const btn = document.createElement('button');
         btn.classList = 'btn modelSelect';
-        if (modelId == localStorageGet('model'))
+        if (modelId == (localStorageGet('model') || defaults.model))
             btn.classList.add('selected');
         btn.innerHTML = /*html*/`
             <p><b>${model.name}</b></p>
