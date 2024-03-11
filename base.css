@@ -1,0 +1,527 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=Nunito:wght@400;500;600;700&family=Onest:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0..1,0');
+
+* {
+    box-sizing: border-box;
+    min-width: 0px;
+    min-height: 0px;
+    max-width: 100000px;
+    max-height: 100000px;
+}
+
+body {
+    --bg0: hsl(240, 15%, 12%);
+    --bg1: hsl(240, 15%, 15%);
+    --bg2: hsl(240, 15%, 20%);
+    --bg3: hsl(240, 15%, 30%);
+    --bg4: hsl(240, 15%, 40%);
+    --fg4: hsl(240, 15%, 50%);
+    --fg3: hsl(240, 15%, 60%);
+    --fg2: hsl(240, 15%, 75%);
+    --fg1: hsl(240, 15%, 85%);
+    --fg0: hsl(240, 15%, 95%);
+    --anchor: hsl(220, 80%, 70%);
+    --anchor1: hsl(220, 80%, 80%);
+    --danger0: hsl(340, 50%, 18%);
+    --danger1: hsl(340, 50%, 25%);
+    --danger2: hsl(340, 50%, 32%);
+    --danger3: hsl(340, 50%, 40%);
+    --danger4: hsl(340, 50%, 50%);
+    --syntax-comment: #8b949e;
+    --syntax-constant: #79c0ff;
+    --syntax-entity: #d2a8ff;
+    --syntax-storage-modifier-import: #c9d1d9;
+    --syntax-entity-tag: #7ee787;
+    --syntax-keyword: #ff7b72;
+    --syntax-string: #a5d6ff;
+    --syntax-variable: #ffa657;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--fg1);
+    background: var(--bg1);
+    margin: 0px;
+    padding: 0px;
+}
+
+.btn {
+    height: 40px;
+    padding: 0px 12px;
+    border-radius: 8px;
+    background: var(--bg3);
+    border: none;
+    color: var(--fg1);
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipse;
+    text-decoration: none;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+    user-select: none;
+}
+.btn:hover, .btn:focus-visible {
+    background: var(--bg4);
+    box-shadow: 0px 2px 8px 0px hsla(0, 0%, 0%, 0.2);
+}
+.btn:active {
+    background: var(--fg4);
+    box-shadow: 0px 0px 8px 0px hsla(0, 0%, 0%, 0.2);
+}
+.btn.danger {
+    background: var(--danger2);
+}
+.btn.danger:hover, .btn.danger:focus-visible {
+    background: var(--danger3);
+}
+.btn.danger:active {
+    background: var(--danger4);
+}
+.btn.alt {
+    background: var(--fg1);
+    color: var(--bg1);
+}
+.btn.alt:hover, .btn.alt:focus-visible {
+    background: var(--fg2);
+}
+.btn.alt:active {
+    background: var(--fg3);
+}
+.btn:disabled,
+.btn.danger:disabled,
+.btn.alt:disabled {
+    background: var(--bg0);
+    color: var(--fg4);
+    cursor: not-allowed;
+}
+.btn .icon {
+    font-size: 24px;
+    font-family: 'Material Symbols Rounded';
+}
+.btn.icon {
+    padding: 0px;
+    width: 40px;
+    font-size: 28px;
+    font-family: 'Material Symbols Rounded';
+}
+.btn.icon.filled, .btn .icon.filled {
+    font-variation-settings: 'FILL' 1;
+}
+.btn.small {
+    height: 36px;
+    padding: 0px 10px;
+    font-size: 14px;
+}
+.btn.small .icon {
+    font-size: 20px;
+}
+.btn.small.icon {
+    width: 36px;
+    font-size: 24px;
+}
+.btn.no-shadow:hover,
+.btn.no-shadow:focus-visible,
+.btn.no-shadow:active {
+    box-shadow: none;
+}
+
+.dialog::backdrop {
+    background: hsla(0, 0%, 0%, 0.4);
+    opacity: 0;
+    transition: 0.2s ease-in-out;
+}
+.dialog.visible::backdrop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.dialog {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 100%;
+    overflow-y: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    scale: 0.9;
+    transition: 0.1s ease-in-out;
+}
+
+.dialog.visible {
+    opacity: 1;
+    scale: 1;
+}
+
+.dialog > .content {
+    background: var(--bg1);
+    border-radius: 12px;
+    box-shadow: 0px 4px 16px 0px hsla(0, 0%, 0%, 0.2);
+    padding: 16px;
+}
+
+.dialog > .content > .body {
+    max-height: 100%;
+    overflow-y: auto;
+    margin-right: -12px;
+    padding: 10px 12px 10px 0px;
+}
+
+.textbox {
+    width: 100%;
+    height: 40px;
+    padding: 0px 12px;
+    border-radius: 8px;
+    background: var(--bg2);
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    color: var(--fg1);
+}
+textarea.textbox {
+    height: auto;
+    padding: 12px;
+    resize: vertical;
+}
+
+progress {
+    --bg: var(--bg2);
+    --fill: var(--fg3);
+    --height: 3px;
+    --borderRadius: 0px;
+    appearance: none;
+    position: relative;
+    background: var(--bg);
+    width: 100%;
+    height: var(--height);
+    border-radius: var(--borderRadius);
+    overflow: hidden;
+    outline: none;
+    border: none;
+}
+progress:not([value]):before,
+progress:not([value]):after {
+    content: "";
+    background-color: var(--fill);
+    border-radius: 100px;
+    height: var(--height);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30%;
+    animation: move 1.5s linear infinite;
+    transform: translateX(-100%);
+}
+progress:not([value]):after {
+    animation-delay: 0.75s;
+}
+@keyframes move {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(350%);
+    }
+}
+progress::-webkit-progress-bar {
+    background: var(--bg);
+    border-radius: var(--borderRadius);
+}
+progress::-webkit-progress-value {
+    background: var(--fill);
+    border-radius: var(--borderRadius);
+    transition: 0.1s ease-in-out;
+}
+progress::-moz-progress-bar {
+    background: var(--fill);
+    border-radius: var(--borderRadius);
+    transition: 0.1s ease-in-out;
+}
+
+p, li, ul, ol {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+ul, ol {
+    margin-left: 30px;
+}
+p:not(:last-child),
+ul:not(:last-child),
+ol:not(:last-child),
+li:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+
+a {
+    color: var(--anchor);
+    text-decoration: none;
+    cursor: pointer;
+}
+a:hover, a:focus-visible {
+    color: var(--anchor1);
+    text-decoration: underline;
+}
+
+b {
+    font-weight: bold;
+    color: var(--fg0);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--fg0);
+}
+
+h1:not(:first-child), h2:not(:first-child), h3:not(:first-child), h4:not(:first-child), h5:not(:first-child), h6:not(:first-child) {
+    margin-top: 0.7em;
+}
+
+h1:not(:last-child), h2:not(:last-child), h3:not(:last-child), h4:not(:last-child), h5:not(:last-child), h6:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+h2 {
+    font-size: 2em;
+}
+h3 {
+    font-size: 1.5em;
+}
+h4 {
+    font-size: 1.2em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+    font-size: 0.8em;
+}
+
+label {
+    line-height: 1.2;
+    font-size: 15px;
+    color: var(--fg2);
+    padding-bottom: 0.5em;
+}
+
+small {
+    display: block;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--fg3);
+}
+small.pad-top {
+    padding-top: 0.4em;
+}
+
+hr {
+    margin: 10px 0px;
+    padding: 0;
+    border: none;
+    border-top: 1px solid var(--bg2);
+}
+
+code {
+    font-family: 'Cascadia Code', 'monospace';
+}
+code:not(pre code) {
+    padding: 2px 4px;
+    background: var(--bg0);
+    border-radius: 4px;
+    word-break: break-word;
+}
+pre {
+    padding: 8px;
+    border-radius: 12px;
+    background: var(--bg0);
+    color: var(--fg1);
+    margin: 0px;
+}
+pre:not(:first-child) {
+    margin-top: 0.8em;
+}
+pre:not(:last-child) {
+    margin-bottom: 0.8em;
+}
+pre code {
+    display: block;
+    padding: 4px;
+    max-width: 100%;
+    overflow: auto;
+    line-height: 1.4;
+    font-size: 16px;
+}
+.cm-comment,
+.cm-meta,
+.cm-hr,
+code .token.comment,
+code .token.deleted,
+code .token.prolog,
+code .token.doctype,
+code .token.cdata {
+    color: var(--syntax-comment) !important
+}
+.cm-header,
+.cm-def,
+.cm-variable,
+.cm-variable-3,
+.cm-number,
+.cm-builtin,
+.cm-atom,
+.cm-qualifier,
+.cm-attribute,
+code .token.builtin,
+code .token.property,
+code .token.attr-name,
+code .token.boolean,
+code .token.number,
+code .token.constant {
+    color: var(--syntax-constant) !important
+}
+.cm-variable-2,
+.cm-type,
+code .token.color,
+code .token.variable {
+    color: var(--syntax-variable) !important
+}
+.cm-calle,
+code .token.function,
+code .token.symbol,
+code .token.entity {
+    color: var(--syntax-entity) !important
+}
+.cm-tag,
+code .token.class-name,
+code .token.selector,
+code .token.tag {
+    color: var(--syntax-entity-tag) !important
+}
+.cm-keyword,
+.cm-operator,
+code .token.important,
+code .token.keyword,
+code .token.operator,
+code .token.atrule,
+code .token.unit {
+    color: var(--syntax-keyword) !important
+}
+.cm-quote,
+.cm-string, .cm-string-2,
+.cm-link,
+code .token.string,
+code .token.char,
+code .token.regex,
+code .token.url,
+code .token.attr-value {
+    color: var(--syntax-string) !important
+}
+.cm-property,
+.cm-positive,
+.cm-negative,
+.cm-bracket,
+.cm-error,
+.cm-invalidchar,
+code .token.punctuation,
+code .token.inserted,
+code .token.interpolation-punctuation {
+    color: var(--f1) !important
+}
+code .token.bold {
+    font-weight: bold;
+}
+code .token.italic {
+    font-style: italic
+}
+code .token.namespace {
+    color: var(--f3)
+}
+
+::selection {
+    background: var(--bg4);
+    color: var(--fg0);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background: transparent;
+}
+::-webkit-resizer {
+    background: transparent;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--bg4);
+    border-radius: 100px;
+    background-clip: padding-box;
+    border: 4px solid transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--fg4);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+}
+* {
+    scrollbar-color: var(--bg4) transparent;
+    scrollbar-highlight-color: var(--fg4) transparent;
+    scrollbar-width: thin;
+}
+
+::placeholder {
+    color: var(--fg3);
+}
+
+.row {
+    display: flex;
+}
+.col {
+    display: flex;
+    flex-direction: column;
+}
+.gap-5 { gap: 5px }
+.gap-10 { gap: 10px }
+.gap-15 { gap: 15px }
+.gap-20 { gap: 20px }
+.flex-grow {
+    flex-grow: 1;
+}
+.flex-no-shrink {
+    flex-shrink: 0;
+}
+.flex-wrap {
+    flex-wrap: wrap;
+}
+.align-center {
+    align-items: center;
+}
+.justify-center {
+    justify-content: center;
+}
+.text-center {
+    text-align: center;
+}

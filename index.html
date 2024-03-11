@@ -11,12 +11,14 @@
     <meta name="theme-color" content="#21212c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="/base.css">
     <link rel="stylesheet" href="/index.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script defer src="/prism.min.js"></script>
+    <script defer src="/base.js"></script>
     <script defer src="/index.js"></script>
 </head>
 <body>
@@ -51,7 +53,11 @@
             <progress style="display: none" class="flex-no-shrink" min="0" max="100"></progress>
             <div id="draftSep" class="flex-no-shrink"></div>
             <div id="draft" class="row flex-no-shrink">
-                <textarea id="input" class="flex-grow" rows="1"></textarea>
+                <button id="addImage" class="btn icon no-shadow" title="Add images..." style="display: none">add_a_photo</button>
+                <div id="inputCont" class="col flex-grow">
+                    <div id="imageList"></div>
+                    <textarea id="input" class="flex-grow" rows="1"></textarea>
+                </div>
                 <button id="send" class="btn alt icon filled no-shadow" title="Send (Ctrl + Enter)" disabled>send</button>
             </div>
         </div>
