@@ -28,7 +28,6 @@ const models = {
             input: 0.0005 / 1000,
             output: 0.0015 / 1000
         },
-        max_tokens: 2048,
         hue: 100
     },
     'gpt-4-turbo-preview': {
@@ -38,11 +37,10 @@ const models = {
             input: 0.01 / 1000,
             output: 0.03 / 1000
         },
-        max_tokens: 2048,
         hue: 165
     },
     'gpt-4-vision-preview': {
-        name: 'GPT-4 Turbo (Vision)',
+        name: 'GPT-4 Turbo V',
         desc: 'This model is identical to GPT-4 Turbo, but also supports the ability to send images in addition to text.',
         price: {
             input: 0.01 / 1000,
@@ -137,7 +135,7 @@ const getModelResponse = async(content, streamCb = () => {}) => {
             model: model,
             stream: true,
             messages: [ ...context, { role: 'user', content: content }],
-            max_tokens: models[model].max_tokens
+            max_tokens: models[model].max_tokens || undefined
         }, {
             headers: {
                 'Authorization': `Bearer ${key}`,
@@ -301,14 +299,15 @@ btnSettings.addEventListener('click', () => {
                 <div class="row gap-10">
                     <input type="text" id="imgbbKey" class="textbox" placeholder="<paste key here>" style="width: 400px">
                 </div>
-                <small class="pad-top">An ImgBB API key to use for uploading images to supported models. Get your own key <a href="https://api.imgbb.com/">here</a>, or use the provided one.</small>
+                <small class="pad-top">An ImgBB API key to use for uploading images to supported models. Get your own key <a href="https://api.imgbb.com/">here</a>, or use the one provided.</small>
             </div>
             <div class="col">
                 <label>Clear local storage</label>
-                <div>
-                    <button id="wipeStorage" class="btn danger">Wipe</button>
+                <div class="row gap-10 flex-wrap">
+                    <button id="wipeStorage" class="btn danger">Wipe everything</button>
+                    <button id="wipeMessages" class="btn danger">Wipe messages</button>
                 </div>
-                <small class="pad-top">Clear all locally stored data for this site, including message history and settings.</small>
+                <small class="pad-top">Clear all locally stored data for this site, including message history and settings. Alternatively, choose to wipe just message history.</small>
             </div>
         </div>
     `);
@@ -320,6 +319,7 @@ btnSettings.addEventListener('click', () => {
     const btnChangeModel = body.querySelector('#settingsChangeModel');
     const inputImgbbKey = body.querySelector('#imgbbKey');
     const btnWipe = body.querySelector('#wipeStorage');
+    const btnWipeMessages = body.querySelector('#wipeMessages');
     btnChangeModel.addEventListener('click', () => {
         btnModel.click();
     });
@@ -345,6 +345,10 @@ btnSettings.addEventListener('click', () => {
     inputImgbbKey.placeholder = localStorageGet('imgbbKey') || defaults.imgbbKey;
     btnWipe.addEventListener('click', () => {
         window.localStorage.clear();
+        window.location.reload();
+    });
+    btnWipeMessages.addEventListener('click', () => {
+        localStorageSet('messages', '[]');
         window.location.reload();
     });
     popup.showModal();
@@ -549,7 +553,7 @@ window.addEventListener('load', async() => {
         window.localStorage.clear();
         localStorageSet('simplegpt-version', appVersion);
     }
-    setModel(localStorageGet('model'));
+    setModel(localStorageGet('model') || undefined);
 
     const messages = JSON.parse(localStorageGet('messages')) || [];
     for (let i = 0; i < messages.length; i++) {
