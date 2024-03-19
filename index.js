@@ -247,8 +247,8 @@ btnModel.addEventListener('click', () => {
             <p><b>${model.name}</b></p>
             <p>${model.desc}</p>
             <small>
-                ~$${model.price.input*1000} per 1000 words of input.
-                <br>~$${model.price.output*1000} per 1000 words of output.
+                ~$${model.price.input*1000} per 750 words of input.
+                <br>~$${model.price.output*1000} per 750 words of output.
                 ${model.vision ? /*html*/`
                     <br>$${model.price.image_low_res.toFixed(5)} per image 512x or smaller.
                     <br>$${model.price.image_low_res.toFixed(5)} + $${model.price.image_high_res.toFixed(5)} per 512x chunk of larger images.
