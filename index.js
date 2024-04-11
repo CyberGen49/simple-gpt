@@ -44,9 +44,10 @@ const models = {
     }
 };
 
-const setModel = (model = defaults.model) => {
+const setModel = (model) => {
+    if (!model || !models[model]) model = defaults.model;
     localStorageSet('model', model);
-    let modelData = models[model] || models[defaults.model];
+    let modelData = models[model];
     btnModelName.innerText = modelData.name;
     btnAddImages.style.display = modelData.vision ? '' : 'none';
 };
@@ -543,7 +544,7 @@ window.addEventListener('load', async() => {
         window.localStorage.clear();
         localStorageSet('simplegpt-version', appVersion);
     }
-    setModel(localStorageGet('model') || undefined);
+    setModel(localStorageGet('model'));
 
     const messages = JSON.parse(localStorageGet('messages')) || [];
     for (let i = 0; i < messages.length; i++) {
