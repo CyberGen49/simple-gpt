@@ -161,6 +161,17 @@ body {
     transition: 0.1s ease-in-out;
 }
 
+@media (max-width: 600px) {
+    .dialog {
+        width: 100%;
+        max-width: 100%;
+        padding: 0px;
+    }
+    .dialog > .content {
+        border-radius: 0px;
+    }
+}
+
 .dialog.visible {
     opacity: 1;
     scale: 1;
