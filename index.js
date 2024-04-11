@@ -14,7 +14,7 @@ let samplePrompts = [];
 let generationInProgress = false;
 let selectedImages = [];
 let defaults = {
-    model: 'gpt-4-turbo-preview',
+    model: 'gpt-4-turbo',
     systemPrompt: 'You are a helpful assistant.',
     contextCount: 0,
     imgbbKey: 'd7df51cf14f9ce4e6f8e88f5d0f3693f'
