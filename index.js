@@ -21,15 +21,6 @@ let defaults = {
 };
 
 const models = {
-    'gpt-3.5-turbo': {
-        name: 'GPT-3.5 Turbo',
-        desc: 'GPT-3.5 Turbo is capable and cost-effective.',
-        price: {
-            input: 0.0005 / 1000,
-            output: 0.0015 / 1000
-        },
-        hue: 100
-    },
     'gpt-4-turbo': {
         name: 'GPT-4 Turbo',
         desc: 'With fresher knowledge and the broadest set of capabilities, GPT-4 Turbo is OpenAI\'s most powerful model. It can also respond to images in addition to text.',
@@ -41,6 +32,15 @@ const models = {
         },
         vision: true,
         hue: 165
+    },
+    'gpt-3.5-turbo': {
+        name: 'GPT-3.5 Turbo',
+        desc: 'GPT-3.5 Turbo is capable and cost-effective.',
+        price: {
+            input: 0.0005 / 1000,
+            output: 0.0015 / 1000
+        },
+        hue: 100
     }
 };
 
