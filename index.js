@@ -31,7 +31,7 @@ const models = {
             image_high_res: (0.01 / 1000) * 170
         },
         vision: true,
-        max_tokens: 8192,
+        max_tokens: 4096,
         hue: 165
     },
     'gpt-3.5-turbo': {
