@@ -9,6 +9,8 @@ const localStorageSet = (key, value) => {
     window.localStorage.setItem(key, value);
 };
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const markdownToHtml = markdown => {
     return DOMPurify.sanitize(marked.parse(markdown));
 };
@@ -24,6 +26,33 @@ const copyElementHtml = async element => {
         console.error('Failed to copy:', error);
     }
 }
+
+const selectImagesBase64 = (multiple = true) => new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = multiple;
+    input.addEventListener('change', async e => {
+        if (!e.target.files[0]) return resolve(null);
+        const images = [];
+        for (const file of e.target.files) {
+            if (file.size > 1000 * 1000 * 32) {
+                console.error(`File "${file.name}" is too large!`);
+                continue;
+            }
+            const reader = new FileReader();
+            await new Promise(resolve2 => {
+                reader.onload = e => {
+                    images.push(e.target.result);
+                    resolve2();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        resolve(images);
+    });
+    input.click();
+});
 
 const showPopup = (titleHTML = 'Popup', bodyHTML = '', actions) => {
     const dialog = document.createElement('dialog');

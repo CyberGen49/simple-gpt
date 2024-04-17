@@ -9,7 +9,7 @@ const btnModelName = document.querySelector('#modelName');
 const btnSettings = document.querySelector('#settings');
 const elSettingsLink = document.querySelector('#settingsLink');
 const progress = document.querySelector('progress');
-const appVersion = 'v3';
+const appVersion = 'v4';
 let samplePrompts = [];
 let generationInProgress = false;
 let selectedImages = [];
@@ -54,7 +54,7 @@ const setModel = (model) => {
     btnAddImages.style.display = modelData.vision ? '' : 'none';
 };
 
-const addMessage = (entry) => {
+const addMessage = (entry, ts) => {
     const el = document.createElement('div');
     el.classList = `message ${entry.role} row gap-10`;
     if (entry.role == 'model') el.style.setProperty('--hue', entry.model?.hue || 120);
@@ -65,6 +65,9 @@ const addMessage = (entry) => {
             <div class="content"></div>
         </div>
         <div class="menu row gap-5">
+            <button class="flag btn no-shadow small icon" title="Add/remove flag">
+                flag
+            </button>
             <button class="copyText btn no-shadow small icon" title="Copy message text">
                 content_copy
             </button>
@@ -91,10 +94,55 @@ const addMessage = (entry) => {
             }
         }
     }
+    const html = elContent.innerHTML;
     const btnCopyHtml = el.querySelector('.copyHtml');
     btnCopyHtml.addEventListener('click', () => {
-        copyElementHtml(el.querySelector('.content'));
+        navigator.clipboard.writeText(html);
     });
+    if (entry.references && entry.references.length) {
+        const flagsList = document.createElement('small');
+        flagsList.style.padding = '3px 5px';
+        flagsList.style.lineHeight = '1.4';
+        for (const flaggedTs of entry.references) {
+            const elFlagged = document.querySelector(`.message[data-ts="${flaggedTs}"]`);
+            let anchor;
+            if (elFlagged) {
+                const text = (elFlagged.querySelector('.content').innerText || '').replace('\n', ' ').trim();
+                const substringLength = 100;
+                const textSubstring = text.length > substringLength ? text.substring(0, substringLength) + '...' : text;
+                anchor = document.createElement('a');
+                anchor.innerText = `Flagged message: "${textSubstring}"`;
+                anchor.addEventListener('click', async() => {
+                    elFlagged.scrollIntoView({ behavior: 'smooth' });
+                    elFlagged.classList.add('selected');
+                    await sleep(100);
+                    elFlagged.classList.remove('selected');
+                    await sleep(100);
+                    elFlagged.classList.add('selected');
+                    await sleep(1000);
+                    elFlagged.classList.remove('selected');
+                });
+            } else {
+                anchor = document.createElement('span');
+                anchor.innerText = 'Flagged message';
+            }
+            flagsList.appendChild(anchor);
+            flagsList.appendChild(document.createElement('br'));
+        }
+        elContent.prepend(flagsList);
+    }
+    if (ts) {
+        el.dataset.ts = ts;
+        el.querySelector('.flag').addEventListener('click', () => {
+            el.classList.toggle('flagged');
+        });
+        el.querySelector('.delete').addEventListener('click', () => {
+            el.remove();
+            const messages = JSON.parse(localStorageGet('messages')) || {};
+            delete messages[ts];
+            localStorageSet('messages', JSON.stringify(messages));
+        });
+    }
     elInteractions.insertAdjacentElement('afterbegin', el);
     elInteractions.scrollTop = 0;
     return el;
@@ -107,17 +155,26 @@ const getModelResponse = async(content, streamCb = () => {}) => {
         const key = localStorageGet('apiKey') || '';
         if (!key.trim()) throw new Error(`Missing API key! Get or generate yours [here](https://platform.openai.com/account/api-keys), then apply it from the Settings button in the top right.`);
         const contextCount = parseInt(localStorageGet('contextCount') || defaults.contextCount);
-        const storedMessages = (JSON.parse(localStorageGet('messages')) || []).reverse();
+        const messages = JSON.parse(localStorageGet('messages')) || {};
+        const messagesValues = Object.values(messages).reverse();
         const context = [{
             role: 'system',
             content: systemPrompt
         }];
         for (let i = 0; i < contextCount; i++) {
-            const msg = storedMessages[i];
+            const msg = messagesValues[i];
             if (!msg) break;
             context.push({
                 role: msg.role == 'model' ? 'assistant' : 'user',
                 content: msg.content
+            });
+        }
+        const flags = [...document.querySelectorAll('.message.flagged')].reverse();
+        for (const el of flags) {
+            const message = messages[parseInt(el.dataset.ts)];
+            context.push({
+                role: message.role == 'model' ? 'assistant' : 'user',
+                content: message.content
             });
         }
         let response = '';
@@ -167,33 +224,6 @@ const getModelResponse = async(content, streamCb = () => {}) => {
         return { success: false, error: message };
     }
 };
-
-const selectImagesBase64 = (multiple = true) => new Promise((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.multiple = multiple;
-    input.addEventListener('change', async e => {
-        if (!e.target.files[0]) return resolve(null);
-        const images = [];
-        for (const file of e.target.files) {
-            if (file.size > 1000 * 1000 * 32) {
-                console.error(`File "${file.name}" is too large!`);
-                continue;
-            }
-            const reader = new FileReader();
-            await new Promise(resolve2 => {
-                reader.onload = e => {
-                    images.push(e.target.result);
-                    resolve2();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-        resolve(images);
-    });
-    input.click();
-});
 
 const imgbbUpload = async(base64) => {
     try {
@@ -341,7 +371,7 @@ btnSettings.addEventListener('click', () => {
         window.location.reload();
     });
     btnWipeMessages.addEventListener('click', () => {
-        localStorageSet('messages', '[]');
+        localStorageSet('messages', '{}');
         window.location.reload();
     });
     popup.showModal();
@@ -438,8 +468,13 @@ btnSend.addEventListener('click', async() => {
     const inputMsgEntry = {
         role: 'user',
         name: 'You',
-        content: []
+        content: [],
+        references: []
     };
+    const flags = [...document.querySelectorAll('.message.flagged')].reverse();
+    for (const el of flags) {
+        inputMsgEntry.references.push(parseInt(el.dataset.ts));
+    }
     const tmpInputMsg = addMessage(inputMsgEntry);
     // Add images to input if any
     if (selectedImages.length) {
@@ -463,20 +498,12 @@ btnSend.addEventListener('click', async() => {
     // Update saved content
     inputMsgEntry.content = content;
     // Get saved messages
-    const messages = JSON.parse(localStorageGet('messages')) || [];
+    const messages = JSON.parse(localStorageGet('messages')) || {};
     // Update user message entry
-    messages.push(inputMsgEntry);
-    const inputMsg = addMessage(inputMsgEntry);
+    const inputMsgTs = Date.now();
+    messages[inputMsgTs] = inputMsgEntry;
+    const inputMsg = addMessage(inputMsgEntry, inputMsgTs);
     tmpInputMsg.replaceWith(inputMsg);
-    inputMsg.dataset.index = messages.length - 1;
-    inputMsg.querySelector('.copyText').addEventListener('click', () => {
-        navigator.clipboard.writeText(content[0].text);
-    });
-    inputMsg.querySelector('.delete').addEventListener('click', () => {
-        inputMsg.remove();
-        messages.splice(parseInt(inputMsg.dataset.index), 1);
-        localStorageSet('messages', JSON.stringify(messages));
-    });
     // Create model message entry
     const model = models[localStorageGet('model')];
     const tmpOutputMsg = addMessage({
@@ -514,22 +541,20 @@ btnSend.addEventListener('click', async() => {
                 text: res.response
             }]
         };
-        messages.push(outputMsgEntry);
-        while (messages.length > 128) {
-            console.log(`Deleting old saved message:`, messages.shift());
+        const outputMsgTs = Date.now();
+        messages[outputMsgTs] = outputMsgEntry;
+        while (Object.values(messages).length > 128) {
+            const key = Object.keys(messages).shift();
+            const msg = messages[key];
+            delete messages[key];
+            console.log(`Deleted message ${key}:`, msg);
         }
         localStorageSet('messages', JSON.stringify(messages));
         // Replace displayed message
-        const outputMsg = addMessage(outputMsgEntry);
+        const outputMsg = addMessage(outputMsgEntry, outputMsgTs);
         tmpOutputMsg.replaceWith(outputMsg);
-        outputMsg.dataset.index = messages.length - 1;
         outputMsg.querySelector('.copyText').addEventListener('click', () => {
             navigator.clipboard.writeText(res.response);
-        });
-        outputMsg.querySelector('.delete').addEventListener('click', () => {
-            outputMsg.remove();
-            messages.splice(parseInt(outputMsg.dataset.index), 1);
-            localStorageSet('messages', JSON.stringify(messages));
         });
         Prism.highlightAllUnder(outputMsg);
     }
@@ -543,23 +568,17 @@ window.addEventListener('load', async() => {
     window.dispatchEvent(new Event('resize'));
 
     if (localStorageGet('simplegpt-version') != appVersion) {
-        window.localStorage.clear();
+        window.localStorage.removeItem('messages');
         localStorageSet('simplegpt-version', appVersion);
     }
     setModel(localStorageGet('model'));
 
-    const messages = JSON.parse(localStorageGet('messages')) || [];
-    for (let i = 0; i < messages.length; i++) {
-        const entry = messages[i];
-        const el = addMessage(entry);
-        el.dataset.index = i;
+    const messages = JSON.parse(localStorageGet('messages')) || {};
+    for (const ts in messages) {
+        const message = messages[ts];
+        const el = addMessage(message, ts);
         el.querySelector('.copyText').addEventListener('click', () => {
             navigator.clipboard.writeText(entry.content[0].text);
-        });
-        el.querySelector('.delete').addEventListener('click', () => {
-            el.remove();
-            messages.splice(parseInt(el.dataset.index), 1);
-            localStorageSet('messages', JSON.stringify(messages));
         });
     }
     Prism.highlightAll();
