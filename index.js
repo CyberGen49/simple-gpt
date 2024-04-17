@@ -504,6 +504,9 @@ btnSend.addEventListener('click', async() => {
     messages[inputMsgTs] = inputMsgEntry;
     const inputMsg = addMessage(inputMsgEntry, inputMsgTs);
     tmpInputMsg.replaceWith(inputMsg);
+    inputMsg.querySelector('.copyText').addEventListener('click', () => {
+        navigator.clipboard.writeText(inputMsgEntry.content[0].text);
+    });
     // Create model message entry
     const model = models[localStorageGet('model')];
     const tmpOutputMsg = addMessage({
@@ -578,7 +581,7 @@ window.addEventListener('load', async() => {
         const message = messages[ts];
         const el = addMessage(message, ts);
         el.querySelector('.copyText').addEventListener('click', () => {
-            navigator.clipboard.writeText(entry.content[0].text);
+            navigator.clipboard.writeText(message.content[0].text);
         });
     }
     Prism.highlightAll();
