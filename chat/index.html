@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <title>SimpleAI</title>
+    <link rel="icon" href="/icon.png">
+    <meta property="og:site_name" content="SimpleAI">
+    <meta property="og:title" content="Chat">
+    <meta property="og:description" content="Interact with OpenAI's GPT language models using your own API key.">
+    <meta name="theme-color" content="#21212c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="/assets/utils.css">
+    <link rel="stylesheet" href="/assets/global.css">
+    <link rel="stylesheet" href="index.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script defer src="/assets/prism.min.js"></script>
+    <script defer src="/assets/utils.js"></script>
+    <script defer src="/assets/global.js"></script>
+    <script defer src="index.js"></script>
+</head>
+<body>
+    <div id="main" class="row">
+        <div id="sidebar" class="col"></div>
+        <div id="uiCont" class="row justify-center flex-grow">
+            <div id="ui" class="col">
+                <div id="topbar" class="row align-center gap-10 flex-wrap flex-no-shrink">
+                    <a id="sidebarBtn" class="btn icon" href="/">
+                        home
+                    </a>
+                    <div id="title" class="flex-grow"></div>
+                    <div class="row gap-10">
+                        <button id="model" class="btn">
+                            <span class="icon">model_training</span>
+                            <span>Model: <b id="modelName">unknown</b></span>
+                        </button>
+                        <button id="settings" class="btn">
+                            <span class="icon">settings</span>
+                            <span>Settings</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="interactions" class="col flex-grow">
+                    <div class="row align-center justify-center flex-grow flex-no-shrink">
+                        <div class="text-center" style="max-width: 500px; color: var(--fg3); padding: 50px 0px;">
+                            <h2 style="color: var(--fg3)">Chat</h2>
+                            <p>Interact with OpenAI's language models with ease!</p>
+                            <p>Start by setting your OpenAI API key in <a id="settingsLink">Settings</a>.</p>
+                            <p>Messages you exchange with the AI here are only sent between your browser and OpenAI. Your message history and settings are stored locally in your browser.</p>
+                            <p>Images you send to the AI will first be uploaded to <a href="https://imgbb.com/">ImgBB</a> using the API key in Settings. With the provided key, your images may be seen by others. Use your own key to prevent this.</p>
+                            <p>Check out <a href="https://github.com/CyberGen49/simple-gpt">the project's GitHub repo</a> to learn more.</p>
+                        </div>
+                    </div>
+                </div>
+                <progress style="display: none" class="flex-no-shrink" min="0" max="100"></progress>
+                <div id="draftSep" class="flex-no-shrink"></div>
+                <div id="draft" class="row flex-no-shrink">
+                    <button id="addImage" class="btn icon no-shadow" title="Add images..." style="display: none">add_a_photo</button>
+                    <div id="inputCont" class="col flex-grow">
+                        <div id="imageList"></div>
+                        <textarea id="input" class="flex-grow" rows="1"></textarea>
+                    </div>
+                    <button id="send" class="btn alt icon filled no-shadow" title="Send (Ctrl + Enter)" disabled>send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

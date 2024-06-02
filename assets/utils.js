@@ -2,8 +2,25 @@ const getRandomElement = arr => arr[Math.floor(Math.random() * arr.length)];
 
 const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
+const normalizePath = (path) => {
+    const parts = path.split('/');
+    const normalizedParts = [];
+
+    for (const part of parts) {
+        if (part === '..') {
+            normalizedParts.pop();
+        } else if (part !== '.' && part !== '') {
+            normalizedParts.push(part);
+        }
+    }
+
+    return normalizedParts.join('/');
+}
+
 const localStorageGet = key => {
-    return window.localStorage.getItem(key);
+    let value = window.localStorage.getItem(key);
+    if (value === null) value = defaultConfig[key];
+    return (value === null || value === undefined) ? null : value;
 };
 const localStorageSet = (key, value) => {
     window.localStorage.setItem(key, value);

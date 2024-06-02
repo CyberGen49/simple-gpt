@@ -71,10 +71,12 @@ body {
 .btn:hover, .btn:focus-visible {
     background: var(--bg4);
     box-shadow: 0px 2px 8px 0px hsla(0, 0%, 0%, 0.2);
+    text-decoration: none;
 }
 .btn:active {
     background: var(--fg4);
     box-shadow: 0px 0px 8px 0px hsla(0, 0%, 0%, 0.2);
+    text-decoration: none;
 }
 .btn.danger {
     background: var(--danger2);

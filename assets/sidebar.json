@@ -1,0 +1,117 @@
+[
+    {
+        "type": "item",
+        "label": "Overview",
+        "icon": "home",
+        "description": "View all of what SimpleAI has to offer!",
+        "href": "/",
+        "hide_in_overview": true
+    },
+    {
+        "type": "header",
+        "label": "OpenAI Services"
+    },
+    {
+        "type": "item",
+        "label": "Chat",
+        "icon": "sms",
+        "description": "Interact with the GPT large-language models.",
+        "href": "/chat"
+    },
+    {
+        "type": "item",
+        "label": "Image Generation",
+        "icon": "image",
+        "description": "Generate and edit images using the DALL-E models.",
+        "href": "/images"
+    },
+    {
+        "type": "item",
+        "label": "Speech Transcribe & Translate",
+        "icon": "transcribe",
+        "description": "Transcribe and translate speech from an audio file using the Whisper models.",
+        "href": "/whisper"
+    },
+    {
+        "type": "item",
+        "label": "Text to Speech",
+        "icon": "graphic_eq",
+        "description": "Convert text to lifelike audio using the TTS models.",
+        "href": "/tts"
+    },
+    {
+        "type": "item",
+        "label": "Text Moderation",
+        "icon": "sound_detection_glass_break",
+        "description": "Determine if text contains inappropriate content using the Moderation models.",
+        "href": "/moderation"
+    },
+    {
+        "type": "header",
+        "label": "Tools"
+    },
+    {
+        "type": "item",
+        "label": "Extract Audio from Video",
+        "icon": "audio_file",
+        "description": "Extract an audio file from a video file all without uploading anything remotely.",
+        "href": "/video-to-audio"
+    },
+    {
+        "type": "item",
+        "label": "Resize Images",
+        "icon": "resize",
+        "description": "Resize images without uploading them to a server.",
+        "href": "/image-resize"
+    },
+    {
+        "type": "item",
+        "label": "Upload Images to ImgBB",
+        "icon": "photo_library",
+        "description": "Quickly upload images to ImgBB to get direct links.",
+        "href": "/image-storage"
+    },
+    {
+        "type": "header",
+        "label": "App"
+    },
+    {
+        "type": "item",
+        "label": "Settings",
+        "icon": "settings",
+        "description": "Manage settings for SimpleAI.",
+        "href": "/settings"
+    },
+    {
+        "type": "header",
+        "label": "Links"
+    },
+    {
+        "type": "item",
+        "label": "Project GitHub Repo",
+        "icon": "code",
+        "description": "View this project's source code.",
+        "href": "https://github.com/CyberGen49/simple-ai"
+    },
+    {
+        "type": "item",
+        "label": "OpenAI Pricing Information",
+        "icon": "sell",
+        "description": "View pricing information for all of OpenAI's offerings.",
+        "href": "https://openai.com/pricing"
+    },
+    {
+        "type": "item",
+        "label": "Manage OpenAI API",
+        "icon": "api",
+        "description": "Get API keys and monitor your usage of the OpenAI API.",
+        "href": "https://platform.openai.com/api-keys"
+    },
+    {
+        "type": "item",
+        "label": "Manage ImgBB API",
+        "icon": "api",
+        "description": "Get an API key for uploading images to ImgBB.",
+        "href": "https://api.imgbb.com/"
+    }
+]
