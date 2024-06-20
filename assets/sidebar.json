@@ -59,14 +59,14 @@
     },
     {
         "type": "item",
-        "label": "Resize Images",
+        "label": "Resize Image",
         "icon": "resize",
         "description": "Resize images without uploading them to a server.",
         "href": "/image-resize"
     },
     {
         "type": "item",
-        "label": "Upload Images to ImgBB",
+        "label": "Upload Image to ImgBB",
         "icon": "photo_library",
         "description": "Quickly upload images to ImgBB to get direct links.",
         "href": "/image-storage"
