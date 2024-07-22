@@ -17,23 +17,26 @@ const models = {
         name: 'GPT-4o',
         desc: 'GPT-4o is OpenAI\'s flagship and most advanced multimodal model that\'s faster and cheaper than GPT-4 Turbo, with stronger vision capabilities and a more recent knowledge cutoff.',
         price: {
-            input: 0.005 / 1000,
-            output: 0.015 / 1000,
-            image_low_res: (0.01 / 1000) * 85,
-            image_high_res: (0.01 / 1000) * 170
+            input: 5 / 1000000,
+            output: 15 / 1000000,
+            image_low_res: (5 / 1000000) * 85,
+            image_high_res: (15 / 1000000) * 170
         },
         vision: true,
         max_tokens: 4096,
         hue: 165
     },
-    'gpt-3.5-turbo': {
-        name: 'GPT-3.5 Turbo',
-        desc: 'GPT-3.5 Turbo is the original and freely available model that ships with ChatGPT. It\'s great for simple tasks, but leave complex ones to the flagship model.',
+    'gpt-4o-mini': {
+        name: 'GPT-4o Mini',
+        desc: 'The successor to GPT-3.5 Turbo, GPT-4o Mini is a smaller and more affordable version of GPT-4o that\'s suited for simpler tasks. It supports vision but is the cheapest model available.',
         price: {
-            input: 0.0005 / 1000,
-            output: 0.0015 / 1000
+            input: 0.15 / 1000000,   // $0.15 per 1M input tokens
+            output: 0.60 / 1000000,  // $0.60 per 1M output tokens
+            image_low_res: (5 / 1000000) * 2833,
+            image_high_res: (15 / 1000000) * 5667
         },
-        max_tokens: 2048,
+        vision: true,
+        max_tokens: 4096,
         hue: 100
     }
 };
@@ -262,8 +265,8 @@ btnModel.addEventListener('click', () => {
             <p><b>${model.name}</b></p>
             <p>${model.desc}</p>
             <small>
-                ~$${model.price.input*1000} per 750 words of input.
-                <br>~$${model.price.output*1000} per 750 words of output.
+                ~$${model.price.input*1333333} per 1 million words of input.
+                <br>~$${model.price.output*1333333} per 1 million words of output.
                 ${model.vision ? /*html*/`
                     <br>$${model.price.image_low_res.toFixed(5)} per image 512x or smaller.
                     <br>$${model.price.image_low_res.toFixed(5)} + $${model.price.image_high_res.toFixed(5)} per 512x chunk of larger images.

@@ -1,7 +1,7 @@
 let defaultConfig = {
     openai_api_key: '',
     imgbb_key: 'd7df51cf14f9ce4e6f8e88f5d0f3693f',
-    chat_model: 'gpt-4o',
+    chat_model: 'gpt-4o-mini',
     chat_system_prompt: 'You are a helpful assistant.',
     chat_context_count: 0,
     chat_messages: '{}'
