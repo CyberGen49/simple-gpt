@@ -32,8 +32,8 @@ const models = {
         price: {
             input: 0.15 / 1000000,   // $0.15 per 1M input tokens
             output: 0.60 / 1000000,  // $0.60 per 1M output tokens
-            image_low_res: (5 / 1000000) * 2833,
-            image_high_res: (15 / 1000000) * 5667
+            image_low_res: (0.15 / 1000000) * 2833,
+            image_high_res: (0.60 / 1000000) * 5667
         },
         vision: true,
         max_tokens: 4096,
@@ -265,8 +265,8 @@ btnModel.addEventListener('click', () => {
             <p><b>${model.name}</b></p>
             <p>${model.desc}</p>
             <small>
-                ~$${model.price.input*1333333} per 1 million words of input.
-                <br>~$${model.price.output*1333333} per 1 million words of output.
+                ~$${(model.price.input*1333333).toFixed(2)} per 1 million words of input.
+                <br>~$${(model.price.output*1333333).toFixed(2)} per 1 million words of output.
                 ${model.vision ? /*html*/`
                     <br>$${model.price.image_low_res.toFixed(5)} per image 512x or smaller.
                     <br>$${model.price.image_low_res.toFixed(5)} + $${model.price.image_high_res.toFixed(5)} per 512x chunk of larger images.
